@@ -24,13 +24,16 @@ public class TurretTest extends LinearOpMode {
     /* ================= OFFSET (SET AFTER CALIBRATION) ================= */
 
     // 👇 CHANGE THIS ONCE CALIBRATED
-    private static double TURRET_OFFSET_DEG = 37;
+    private static double TURRET_OFFSET_DEG = 21.3461538462;
+
+    private double lastRawAngle = 0;
+    private double unwrappedAngle = 0;
 
     /* ================= PID Constants ================= */
 
-    private static double kP = 0.015;
+    private static double kP = 0.01;
     private static double kI = 0.0;
-    private static double kD = 0.0005;
+    private static double kD = 0.0002;
 
     private static final double MAX_POWER = 0.6;
     private static final double DEADZONE_DEG = 0.5;
@@ -76,7 +79,7 @@ public class TurretTest extends LinearOpMode {
             if (gamepad1.x) targetAngle = 0;
             if (gamepad1.y) targetAngle = 45;
 
-            targetAngle = Range.clip(targetAngle, 0, MAX_DEGREES);
+
 
             if (gamepad1.a) pidEnabled = true;
             if (gamepad1.b) pidEnabled = false;
@@ -142,23 +145,37 @@ public class TurretTest extends LinearOpMode {
     /* ================= Helper Methods ================= */
 
     private double getRawTurretAngle() {
-        return (turretEncoder.getVoltage() / MAX_VOLTAGE) * MAX_DEGREES;
+        double raw = (turretEncoder.getVoltage() / MAX_VOLTAGE) * MAX_DEGREES;
+        double delta = raw - lastRawAngle;
+
+        // Detect wraparound
+        if (delta > 180)  delta -= 360;
+        if (delta < -180) delta += 360;
+
+        unwrappedAngle += delta;
+        lastRawAngle = raw;
+
+        return unwrappedAngle;
     }
 
     private double getCorrectedTurretAngle() {
-        double corrected = getRawTurretAngle() - TURRET_OFFSET_DEG;
+        double corrected = getRawTurretAngle()*(60.0/104.0) - TURRET_OFFSET_DEG;
 
-        while (corrected < 0) corrected += 360;
-        while (corrected >= 360) corrected -= 360;
+//        while (corrected < 0) corrected += 360;
+//        while (corrected >= 360) corrected -= 360;
 
         return corrected;
     }
 
     // Shortest-path angle error (prevents long spins)
+//    private double angleError(double target, double current) {
+//        double error = target - current;
+//        while (error > 180) error -= 360;
+//        while (error < -180) error += 360;
+//        return error;
+//    }
+
     private double angleError(double target, double current) {
-        double error = target - current;
-        while (error > 180) error -= 360;
-        while (error < -180) error += 360;
-        return error;
+        return target - current;
     }
 }

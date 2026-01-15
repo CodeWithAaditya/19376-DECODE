@@ -1,19 +1,31 @@
 package org.firstinspires.ftc.teamcode.common;
 
+import static org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit.INCH;
+
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+
 public class Shooter {
+
+    /* ================= Shooter Motors ================= */
 
     private DcMotorEx shooterMotorL;
     private DcMotor   shooterMotorR;
+
+    /* ================= Turret Hardware ================= */
 
     private CRServo turretServoL;
     private CRServo turretServoR;
     private AnalogInput turretEncoder;
 
     private Servo hoodServo;
+
+    /* ================= Shooter PID ================= */
 
     private static final double kP_SHOOT = 0.002;
     private static final double kI_SHOOT = 0.0000;
@@ -24,17 +36,29 @@ public class Shooter {
     private double shooterI = 0;
     private double shooterPrevErr = 0;
 
+    /* ================= Encoder Constants ================= */
 
     private static final double MAX_DEGREES = 360.0;
     private static final double MAX_VOLTAGE = 3.3;
 
-    private static double TURRET_OFFSET_DEG = 37.0;
+    /* ================= Turret Calibration ================= */
 
-    private static final double kP_TURRET = 0.015;
+    private static double TURRET_OFFSET_DEG = 21.3461538462;
+
+    private static final double SERVO_GEAR_TEETH = 60.0;
+    private static final double TURRET_GEAR_TEETH = 104.0;
+    private static final double GEAR_RATIO = SERVO_GEAR_TEETH / TURRET_GEAR_TEETH;
+
+    private static final double TURRET_MIN_DEG = -90.0;
+    private static final double TURRET_MAX_DEG =  90.0;
+
+    /* ================= Turret PID ================= */
+
+    private static final double kP_TURRET = 0.01;
     private static final double kI_TURRET = 0.0;
-    private static final double kD_TURRET = 0.0005;
+    private static final double kD_TURRET = 0.0002;
 
-    private static final double MAX_TURRET_POWER = 0.6;
+    private static final double MAX_TURRET_POWER = 0.8;
     private static final double TURRET_DEADZONE = 0.5;
 
     private double turretTargetAngle = 0;
@@ -42,20 +66,28 @@ public class Shooter {
     private double turretPrevErr = 0;
     private boolean turretPIDEnabled = true;
 
-    private double hoodTargetPos = 0;
+    /* ================= Encoder Unwrap State ================= */
 
+    private double lastRawAngle = 0;
+    private double unwrappedAngle = 0;
+
+    /* ================= Misc ================= */
+
+    private double hoodTargetPos = 0;
     private final ElapsedTime dtTimer = new ElapsedTime();
+
+    /* ================= Init ================= */
 
     public Shooter(HardwareMap hMap) {
         init(hMap);
     }
 
     public void init(HardwareMap hMap) {
+
         shooterMotorL = hMap.get(DcMotorEx.class, "shooterMotorL");
         shooterMotorR = hMap.get(DcMotor.class,   "shooterMotorR");
 
         shooterMotorL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
         shooterMotorL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         shooterMotorR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
@@ -74,14 +106,7 @@ public class Shooter {
         dtTimer.reset();
     }
 
-    public double getHoodServoPos(){
-        return hoodServo.getPosition();
-    }
-
-    public void setHoodServoPos(double targetPos){
-        hoodTargetPos = targetPos;
-        hoodServo.setPosition(hoodTargetPos);
-    }
+    /* ================= Public API ================= */
 
     public void update() {
         double dt = dtTimer.seconds();
@@ -90,6 +115,53 @@ public class Shooter {
         updateShooter(dt);
         updateTurret(dt);
     }
+
+    public void setShooterVelocity(double ticksPerSecond) {
+        shooterTargetVel = ticksPerSecond;
+    }
+
+    public void stopShooter() {
+        shooterTargetVel = 0;
+        shooterI = 0;
+        shooterPrevErr = 0;
+    }
+
+    public double getShooterVelocity() {
+        return shooterMotorL.getVelocity();
+    }
+
+    public void setTurretAngle(double degrees) {
+        turretTargetAngle = Range.clip(degrees, TURRET_MIN_DEG, TURRET_MAX_DEG);
+        turretPIDEnabled = true;
+    }
+
+    public void setTurretManual(double power) {
+        turretPIDEnabled = false;
+        turretServoL.setPower(power);
+        turretServoR.setPower(-power);
+    }
+
+    public void stopTurret() {
+        turretPIDEnabled = true;
+        turretTargetAngle = getCorrectedTurretAngle();
+        turretI = 0;
+        turretPrevErr = 0;
+    }
+
+    public double getTurretAngle() {
+        return getCorrectedTurretAngle();
+    }
+
+    public double getHoodServoPos() {
+        return hoodServo.getPosition();
+    }
+
+    public void setHoodServoPos(double targetPos) {
+        hoodTargetPos = targetPos;
+        hoodServo.setPosition(hoodTargetPos);
+    }
+
+    /* ================= Shooter Control ================= */
 
     private void updateShooter(double dt) {
 
@@ -112,31 +184,19 @@ public class Shooter {
         shooterMotorR.setPower(-output);
     }
 
-    public void setShooterVelocity(double ticksPerSecond) {
-        shooterTargetVel = ticksPerSecond;
-    }
-
-    public void stopShooter() {
-        shooterTargetVel = 0;
-        shooterI = 0;
-        shooterPrevErr = 0;
-    }
-
-    public double getShooterVelocity() {
-        return shooterMotorL.getVelocity();
-    }
+    /* ================= Turret Control ================= */
 
     private void updateTurret(double dt) {
 
         double currentAngle = getCorrectedTurretAngle();
-        double power;
+        double power = 0;
 
         if (turretPIDEnabled) {
+
             double error = angleError(turretTargetAngle, currentAngle);
 
             if (Math.abs(error) < TURRET_DEADZONE) {
                 turretI = 0;
-                power = 0;
             } else {
                 turretI += error * dt;
                 double derivative = (error - turretPrevErr) / dt;
@@ -149,7 +209,11 @@ public class Shooter {
 
                 power = Range.clip(power, -MAX_TURRET_POWER, MAX_TURRET_POWER);
             }
-        } else {
+        }
+
+        // Safety hard stops
+        if ((currentAngle <= TURRET_MIN_DEG && power < 0) ||
+                (currentAngle >= TURRET_MAX_DEG && power > 0)) {
             power = 0;
         }
 
@@ -157,47 +221,73 @@ public class Shooter {
         turretServoR.setPower(-power);
     }
 
-    public void setTurretAngle(double degrees) {
-        turretTargetAngle = wrapAngle(degrees);
-        turretPIDEnabled = true;
+    public double distanceToGoal(Pose2D robotPose, Pose2D goalPose) {
+        double dx = goalPose.getX(INCH) - robotPose.getX(INCH); // forward
+        double dy = goalPose.getY(INCH) - robotPose.getY(INCH); // left
+        return Math.hypot(dx, dy);
     }
 
-    public void setTurretManual(double power) {
-        turretPIDEnabled = false;
-        turretServoL.setPower(power);
-        turretServoR.setPower(-power);
+    public double[] getShooterSettingsFromDistance(double distance) {
+        // Cubic regression from your screenshots
+
+        // Flywheel velocity (y1)
+        double flywheel =
+                0.000435011 * Math.pow(distance, 3)
+                        - 0.0999368 * Math.pow(distance, 2)
+                        + 12.79327 * distance
+                        + 916.60197;
+
+        // Hood position (z1)
+        double hood =
+                0.00000045617 * Math.pow(distance, 3)
+                        - 0.000166427 * Math.pow(distance, 2)
+                        + 0.0206465 * distance
+                        - 0.549969;
+
+        // Clip outputs
+        flywheel = Math.max(0, Math.min(2200, flywheel));
+        hood = Math.max(0, Math.min(0.35, hood));
+
+        return new double[] {flywheel, hood};
     }
 
-    public void stopTurret() {
-        turretPIDEnabled = true;
-        turretTargetAngle = getCorrectedTurretAngle();
-        turretI = 0;
-        turretPrevErr = 0;
+    public double autoAimTurretAngle(Pose2D robotPose, Pose2D goalPose) {
+        double dx = goalPose.getX(INCH) - robotPose.getX(INCH);
+        double dy = goalPose.getY(INCH) - robotPose.getY(INCH);
+
+        double fieldAngleDeg = Math.toDegrees(Math.atan2(dy, dx));
+        double robotHeadingDeg = robotPose.getHeading(AngleUnit.DEGREES);
+
+
+        return Range.clip(fieldAngleDeg - robotHeadingDeg, -90.0, 90.0);
     }
 
-    public double getTurretAngle() {
-        return getCorrectedTurretAngle();
-    }
+    /* ================= Encoder Math ================= */
 
-    private double getRawTurretAngle() {
+    private double getRawServoAngle() {
         return (turretEncoder.getVoltage() / MAX_VOLTAGE) * MAX_DEGREES;
     }
 
-    private double getCorrectedTurretAngle() {
-        double angle = getRawTurretAngle() - TURRET_OFFSET_DEG;
-        return wrapAngle(angle);
+    private double getUnwrappedServoAngle() {
+        double raw = getRawServoAngle();
+        double delta = raw - lastRawAngle;
+
+        if (delta > 180)  delta -= 360;
+        if (delta < -180) delta += 360;
+
+        unwrappedAngle += delta;
+        lastRawAngle = raw;
+
+        return unwrappedAngle;
     }
 
-    private double wrapAngle(double angle) {
-        while (angle < 0) angle += 360;
-        while (angle >= 360) angle -= 360;
-        return angle;
+    private double getCorrectedTurretAngle() {
+        return getUnwrappedServoAngle() * GEAR_RATIO - TURRET_OFFSET_DEG;
     }
+
+    /* ================= Math Helpers ================= */
 
     private double angleError(double target, double current) {
-        double error = target - current;
-        while (error > 180) error -= 360;
-        while (error < -180) error += 360;
-        return error;
+        return target - current;
     }
 }
