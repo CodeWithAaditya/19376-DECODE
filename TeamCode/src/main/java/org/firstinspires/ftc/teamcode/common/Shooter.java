@@ -43,7 +43,7 @@ public class Shooter {
 
     /* ================= Turret Calibration ================= */
 
-    private static double TURRET_OFFSET_DEG = 21.3461538462;
+    private static double TURRET_OFFSET_DEG = 89.3;
 
     private static final double SERVO_GEAR_TEETH = 60.0;
     private static final double TURRET_GEAR_TEETH = 104.0;
@@ -54,9 +54,9 @@ public class Shooter {
 
     /* ================= Turret PID ================= */
 
-    private static final double kP_TURRET = 0.01;
+    private static final double kP_TURRET = 0.02;
     private static final double kI_TURRET = 0.0;
-    private static final double kD_TURRET = 0.0002;
+    private static final double kD_TURRET = 0.0005;
 
     private static final double MAX_TURRET_POWER = 0.8;
     private static final double TURRET_DEADZONE = 0.5;
@@ -228,27 +228,26 @@ public class Shooter {
     }
 
     public double[] getShooterSettingsFromDistance(double distance) {
-        // Cubic regression from your screenshots
 
-        // Flywheel velocity (y1)
+        // Shooter flywheel speed (y1)
         double flywheel =
-                0.000435011 * Math.pow(distance, 3)
-                        - 0.0999368 * Math.pow(distance, 2)
-                        + 12.79327 * distance
-                        + 916.60197;
+                0.000458708 * Math.pow(distance, 3)
+                        - 0.0894792 * Math.pow(distance, 2)
+                        + 10.97431 * distance
+                        + 974.8646;
 
         // Hood position (z1)
         double hood =
-                0.00000045617 * Math.pow(distance, 3)
-                        - 0.000166427 * Math.pow(distance, 2)
-                        + 0.0206465 * distance
-                        - 0.549969;
+                6.12363e-7 * Math.pow(distance, 3)
+                        - 0.000220446 * Math.pow(distance, 2)
+                        + 0.0257331 * distance
+                        - 0.682439;
 
         // Clip outputs
         flywheel = Math.max(0, Math.min(2200, flywheel));
         hood = Math.max(0, Math.min(0.35, hood));
 
-        return new double[] {flywheel, hood};
+        return new double[] { flywheel, hood };
     }
 
     public double autoAimTurretAngle(Pose2D robotPose, Pose2D goalPose) {
