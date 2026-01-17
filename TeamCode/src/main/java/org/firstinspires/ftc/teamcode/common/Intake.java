@@ -95,7 +95,7 @@ public class Intake {
     }
 
     public boolean isBallInGrabdexer(){
-        double threshold = 90;
+        double threshold = 70;
         double distance = colorRangeSensor.getDistance(DistanceUnit.MM);
         return distance < threshold;
     }

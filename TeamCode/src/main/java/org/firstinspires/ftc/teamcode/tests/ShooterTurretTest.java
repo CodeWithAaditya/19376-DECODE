@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.tests;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.common.Shooter;
 
 @TeleOp(name = "Shooter Turret Test")
+@Disabled
 public class ShooterTurretTest extends LinearOpMode {
     Shooter shooter;
 

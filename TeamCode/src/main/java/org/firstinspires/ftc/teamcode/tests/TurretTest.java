@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.tests;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -8,6 +9,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 @TeleOp(name = "Turret Test", group = "Test")
+@Disabled
 public class TurretTest extends LinearOpMode {
 
     /* ================= Hardware ================= */
@@ -31,9 +33,9 @@ public class TurretTest extends LinearOpMode {
 
     /* ================= PID Constants ================= */
 
-    private static double kP = 0.01;
+    private static double kP = 0.03;
     private static double kI = 0.0;
-    private static double kD = 0.0002;
+    private static double kD = 0.0005;
 
     private static final double MAX_POWER = 0.6;
     private static final double DEADZONE_DEG = 0.5;

@@ -12,14 +12,13 @@ import org.firstinspires.ftc.teamcode.common.drive.MecanumDrive;
 
 public abstract class BaseTeleOp extends LinearOpMode {
     protected boolean alliance;
-
     protected abstract boolean getAlliance();
 
     public MecanumDrive drive = null;
     public Intake intake = null;
     public Shooter shooter = null;
 
-    Pose2D goalPose  = new Pose2D(INCH, 72, -72, DEGREES, 0); //red default goal
+    Pose2D goalPose;
 
     public enum RobotState {
         IDLE,
@@ -39,10 +38,14 @@ public abstract class BaseTeleOp extends LinearOpMode {
 
         alliance = getAlliance();
 
+        if(alliance){
+            goalPose  = new Pose2D(INCH, 72, 72, DEGREES, 0);
+        } else {
+            goalPose  = new Pose2D(INCH, 72, -72, DEGREES, 0);
+        }
+
         drive.odo.resetPosAndIMU();
         drive.odo.update();
-
-        drive.setManualMode();
 
         waitForStart();
 
@@ -79,9 +82,6 @@ public abstract class BaseTeleOp extends LinearOpMode {
                 robotState = BaseTeleOp.RobotState.SHOOT;
             }
             if(gamepad1.y){
-                shooter.setShooterVelocity(0);
-            }
-            if(gamepad1.y){
                 shooter.setTurretAngle(0);
             }
             if(gamepad1.b){
@@ -91,13 +91,15 @@ public abstract class BaseTeleOp extends LinearOpMode {
                 intake.setIntakeState(Intake.IntakeState.OFF);
             }
 
-            if(alliance){
-                goalPose  = new Pose2D(INCH, 72, 72, DEGREES, 0);
-            } else {
-                goalPose  = new Pose2D(INCH, 72, -72, DEGREES, 0);
+            if(gamepad1.backWasPressed()){
+                shooter.trimTurretOffset(-5);
+            }
+            if(gamepad1.startWasPressed()){
+                shooter.trimTurretOffset(5);
             }
 
             double turretTarget = shooter.autoAimTurretAngle(drive.getPose(), goalPose);
+            shooter.setTurretAngle(turretTarget);
 
             double distance = shooter.distanceToGoal(drive.getPose(), goalPose);
 
@@ -108,7 +110,6 @@ public abstract class BaseTeleOp extends LinearOpMode {
 
             shooter.setShooterVelocity(flywheelVel);
             shooter.setHoodServoPos(hoodPos);
-            shooter.setTurretAngle(turretTarget);
 
             shooter.update();
 

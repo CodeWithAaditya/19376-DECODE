@@ -16,15 +16,6 @@ public class MecanumDrive {
     private DcMotor driveFL, driveFR, driveBL, driveBR;
     public GoBildaPinpointDriver odo;
 
-    public enum DriveMode { MANUAL, AUTO }
-
-    private DriveMode mode = DriveMode.MANUAL;
-
-    private Pose2D targetPose = null;
-    private double kP_position = 0.01;
-    private double kP_heading = 0.01;
-    private double maxPower = 0.6;
-
     public MecanumDrive(HardwareMap hardwareMap) {
         driveFL = hardwareMap.get(DcMotor.class, "driveFL");
         driveFR = hardwareMap.get(DcMotor.class, "driveFR");
@@ -107,46 +98,6 @@ public class MecanumDrive {
         ));
 
         setMotorPowers(powerFL / max, powerFR / max, powerBL / max, powerBR / max);
-    }
-
-    public void updateAuto() {
-        odo.update();
-        Pose2D current = odo.getPosition();
-
-        // --- Field-relative position error ---
-        double dx = targetPose.getX(DistanceUnit.MM) - current.getX(DistanceUnit.MM);
-        double dy = targetPose.getY(DistanceUnit.MM) - current.getY(DistanceUnit.MM);
-        double headingError = targetPose.getHeading(AngleUnit.RADIANS) - current.getHeading(AngleUnit.RADIANS);
-        headingError = Math.atan2(Math.sin(headingError), Math.cos(headingError));
-
-        // --- Rotate the (dx, dy) into ROBOT-centric frame using -robotHeading ---
-        double robotHeading = current.getHeading(AngleUnit.RADIANS);
-        double cos = Math.cos(robotHeading);
-        double sin = Math.sin(robotHeading);
-
-        double axial = kP_position * (dy * cos - dx * sin);     // Forward/back
-        double lateral = kP_position * (dy * sin + dx * cos);   // Strafe
-        double yaw = kP_heading * headingError;
-
-        axial = clamp(axial, -maxPower, maxPower);
-        lateral = clamp(lateral, -maxPower, maxPower);
-        yaw = clamp(yaw, -maxPower, maxPower);
-
-        drive(axial, lateral, yaw);  // still uses robot-centric inputs here
-    }
-
-
-    public void setTargetPose(Pose2D target) {
-        this.targetPose = target;
-        this.mode = DriveMode.AUTO;
-    }
-
-    public void setManualMode() {
-        this.mode = DriveMode.MANUAL;
-    }
-
-    public DriveMode getMode() {
-        return mode;
     }
 
     public Pose2D getPose() {
