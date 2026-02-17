@@ -1,11 +1,9 @@
 package org.firstinspires.ftc.teamcode.common;
 
-import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -16,9 +14,17 @@ public class Intake {
 
     private DcMotorEx intakeMotor = null;
 
-    private Servo linkageServo = null;
+    private Servo grabDexServo = null;
+
+    private Servo swingArmServo = null;
 
     private ColorRangeSensor colorRangeSensor = null;
+
+    static private double SWINGARM_LOW_POS = 0.8;
+
+    static private double SWINGARM_UP_POS = 0.5;
+
+    static private double SWINGARM_SHOOT_POS = 0.72;
 
     public enum IntakeState {
         ON(1.0),
@@ -33,9 +39,10 @@ public class Intake {
     }
 
     public enum GrabdexerState {
-        IN(0.52),
-        OUT(0.18),
-        MID(0.38);
+        IN(1.0),
+        TRANSFER(0.96),
+        OUT(0.2),
+        MID(0.6);
 
         public final double position;
 
@@ -60,13 +67,15 @@ public class Intake {
 
     public void init(HardwareMap hMap) {
         intakeMotor = hMap.get(DcMotorEx.class, "intakeMotor");
-        linkageServo = hMap.get(Servo.class, "linkageServo");
+        grabDexServo = hMap.get(Servo.class, "grabDexServo");
+        swingArmServo = hMap.get(Servo.class, "swingArmServo");
         colorRangeSensor = hMap.get(ColorRangeSensor.class, "colorSensor");
 
         intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         colorRangeSensor.setGain(8);
 
         setGrabdexerState(grabdexerState);
+        lowerSwingArm();
     }
 
     public void setIntakeState(IntakeState newState) {
@@ -76,7 +85,19 @@ public class Intake {
 
     public void setGrabdexerState(GrabdexerState newState) {
         this.grabdexerState = newState;
-        linkageServo.setPosition(grabdexerState.position);
+        grabDexServo.setPosition(grabdexerState.position);
+    }
+
+    public void lowerSwingArm(){
+        swingArmServo.setPosition(SWINGARM_LOW_POS);
+    }
+
+    public void raiseSwingArm(){
+        swingArmServo.setPosition(SWINGARM_UP_POS);
+    }
+
+    public void shootPosSwingArm(){
+        swingArmServo.setPosition(SWINGARM_SHOOT_POS);
     }
 
     public DetectedColor getDectectedColor(Telemetry telemetry){

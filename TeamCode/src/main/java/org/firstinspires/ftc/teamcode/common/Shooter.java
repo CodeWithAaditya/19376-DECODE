@@ -1,7 +1,11 @@
 package org.firstinspires.ftc.teamcode.common;
 
+import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.RADIANS;
 import static org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit.INCH;
+import static org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit.MM;
 
+import com.pedropathing.geometry.Pose;
+import com.pedropathing.math.Vector;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -16,22 +20,21 @@ public class Shooter {
 
     private CRServo turretServoL;
     private CRServo turretServoR;
-    private DcMotorEx turretEncoder;
 
     private Servo hoodServo;
 
-    private static final double kP_SHOOT = 0.002;
-    private static final double kI_SHOOT = 0.0;
-    private static final double kD_SHOOT = 0.00005;
-    private static final double kF_SHOOT = 0.0005;
+    private static double kP_SHOOT = 0.02;
+    private static double kI_SHOOT = 0.0;
+    private static double kD_SHOOT = 0.0001;
+    private static double kF_SHOOT = 0.0004;
 
     private double shooterTargetVel = 0;
     private double shooterI = 0;
     private double shooterPrevErr = 0;
 
     private static final double TICKS_PER_REV = 8192.0;
-    private static final double ENCODER_GEAR_TEETH = 25.0;
-    private static final double TURRET_GEAR_TEETH  = 104.0;
+    private static final double ENCODER_GEAR_TEETH = 30.0;
+    private static final double TURRET_GEAR_TEETH  = 92.0;
     private static final double GEAR_RATIO = ENCODER_GEAR_TEETH / TURRET_GEAR_TEETH;
 
     private static double TURRET_OFFSET_DEG = 0.0;
@@ -39,12 +42,12 @@ public class Shooter {
     private static final double TURRET_MIN_DEG = -90.0;
     private static final double TURRET_MAX_DEG =  90.0;
 
-    private static final double kP_TURRET = 0.025;
-    private static final double kI_TURRET = 0.0;
-    private static final double kD_TURRET = 0.0005;
+    private static double kP_TURRET = 0.018;
+    private static double kI_TURRET = 0.000;
+    private static double kD_TURRET = 0.0008;
+    private static double kF_TURRET = 0.020;
 
     private static final double MAX_TURRET_POWER = 1.0;
-    private static final double TURRET_DEADZONE = 0.5;
 
     private double turretTargetAngle = 0;
     private double turretI = 0;
@@ -66,7 +69,6 @@ public class Shooter {
 
         shooterMotorL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooterMotorL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        shooterMotorR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         shooterMotorR.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -75,8 +77,6 @@ public class Shooter {
 
         turretServoL = hMap.get(CRServo.class, "turretServoL");
         turretServoR = hMap.get(CRServo.class, "turretServoR");
-
-        turretEncoder = hMap.get(DcMotorEx.class, "driveFL");
 
         hoodServo = hMap.get(Servo.class, "hoodServo");
         hoodServo.setPosition(hoodTargetPos);
@@ -127,7 +127,7 @@ public class Shooter {
     }
 
     public void setTurretAngle(double degrees) {
-        turretTargetAngle = Range.clip(-degrees, TURRET_MIN_DEG, TURRET_MAX_DEG); //negative on degrees for some nonsense
+        turretTargetAngle = Range.clip(-degrees, TURRET_MIN_DEG, TURRET_MAX_DEG);
         turretPIDEnabled = true;
     }
 
@@ -157,20 +157,19 @@ public class Shooter {
 
             double error = turretTargetAngle - currentAngle;
 
-            if (Math.abs(error) < TURRET_DEADZONE) {
-                turretI = 0;
-            } else {
-                turretI += error * dt;
-                double derivative = (error - turretPrevErr) / dt;
-                turretPrevErr = error;
+            turretI += error * dt;
+            double derivative = (error - turretPrevErr) / dt;
+            turretPrevErr = error;
 
-                power =
-                        kP_TURRET * error +
-                                kI_TURRET * turretI +
-                                kD_TURRET * derivative;
+            double ff = kF_TURRET * Math.signum(error);  // FEEDFORWARD ADDED
 
-                power = Range.clip(power, -MAX_TURRET_POWER, MAX_TURRET_POWER);
-            }
+            power =
+                    kP_TURRET * error +
+                            kI_TURRET * turretI +
+                            kD_TURRET * derivative +
+                            ff;
+
+            power = Range.clip(power, -MAX_TURRET_POWER, MAX_TURRET_POWER);
         }
 
         if ((currentAngle <= TURRET_MIN_DEG && power < 0) ||
@@ -196,7 +195,7 @@ public class Shooter {
     }
 
     private double getCorrectedTurretAngle() {
-        double encoderTicks = turretEncoder.getCurrentPosition();
+        double encoderTicks = shooterMotorR.getCurrentPosition();
         double encoderDeg = ticksToDegrees(encoderTicks);
         return encoderDeg * GEAR_RATIO - TURRET_OFFSET_DEG;
     }
@@ -213,41 +212,107 @@ public class Shooter {
         return TURRET_OFFSET_DEG;
     }
 
-    public double autoAimTurretAngle(Pose2D robotPose, Pose2D goalPose) {
+    public double[] SOTMTurretAngle(Pose robotPose, Pose goalPose, Vector robotVelocity) {
+        double shotTime = shotTimeFromDistance(distanceToGoal(robotPose, goalPose));
+        Pose correctedGoalPos = new Pose(goalPose.getX()-robotVelocity.getXComponent()*shotTime*1.2, goalPose.getY()-robotVelocity.getYComponent()*shotTime*1.2, goalPose.getHeading());
+        double[] correctedShooterSettings =
+                getShooterSettingsFromDistance(distanceToGoal(robotPose, correctedGoalPos));
 
-        double dx = goalPose.getX(INCH) - robotPose.getX(INCH)-3;
-        double dy = goalPose.getY(INCH) - robotPose.getY(INCH);
-
-        double fieldAngleDeg = Math.toDegrees(Math.atan2(dy, dx));
-        double robotHeadingDeg = robotPose.getHeading(AngleUnit.DEGREES);
-
-        return Range.clip(fieldAngleDeg - robotHeadingDeg,
-                TURRET_MIN_DEG, TURRET_MAX_DEG);
+        return new double[] {autoAimTurretAngle(robotPose, correctedGoalPos), correctedShooterSettings[0], correctedShooterSettings[1]};
     }
 
-    public double distanceToGoal(Pose2D robotPose, Pose2D goalPose) {
-        double dx = goalPose.getX(INCH) - robotPose.getX(INCH)-3;
-        double dy = goalPose.getY(INCH) - robotPose.getY(INCH);
+    public double shotTimeFromDistance(double distance) {
+
+        double shotTime =
+                -2.81782e-8 * Math.pow(distance, 4)
+                        + 0.0000108628 * Math.pow(distance, 3)
+                        - 0.00143724 * Math.pow(distance, 2)
+                        + 0.0807649 * distance
+                        - 1.02067;
+
+        shotTime = Range.clip(shotTime, 0, 1.2);
+
+        return shotTime;
+    }
+
+//    public double autoAimTurretAngle(Pose robotPose, Pose goalPose) {
+//
+//        double dx = goalPose.getX() - robotPose.getX();
+//        double dy = goalPose.getY() - robotPose.getY();
+//
+//        double fieldAngleDeg = Math.toDegrees(Math.atan2(dy, dx));
+//        double robotHeadingDeg = Math.toDegrees(robotPose.getHeading());
+//
+//        return Range.clip(fieldAngleDeg - robotHeadingDeg,
+//                TURRET_MIN_DEG, TURRET_MAX_DEG);
+//    }
+
+    public double autoAimTurretAngle(Pose robotPose, Pose goalPose) {
+
+        double dx = goalPose.getX() - robotPose.getX();
+        double dy = goalPose.getY() - robotPose.getY();
+
+        double fieldAngleDeg = Math.toDegrees(Math.atan2(dy, dx));
+        double robotHeadingDeg = Math.toDegrees(robotPose.getHeading());
+
+        // Normalize both angles to [0,360)
+        fieldAngleDeg = wrap360(fieldAngleDeg);
+        robotHeadingDeg = wrap360(robotHeadingDeg);
+
+        double relativeAngle = fieldAngleDeg - robotHeadingDeg;
+
+        // Keep relative angle continuous (no 360 jumps)
+        if (relativeAngle > 180) relativeAngle -= 360;
+        if (relativeAngle < -180) relativeAngle += 360;
+
+        // HARD mechanical limit
+        return Range.clip(relativeAngle, TURRET_MIN_DEG, TURRET_MAX_DEG);
+    }
+
+    private double wrap360(double angle) {
+        angle %= 360;
+        if (angle < 0) angle += 360;
+        return angle;
+    }
+
+    public double distanceToGoal(Pose robotPose, Pose goalPose) {
+        double dx = goalPose.getX() - robotPose.getX();
+        double dy = goalPose.getY() - robotPose.getY();
         return Math.hypot(dx, dy);
     }
 
     public double[] getShooterSettingsFromDistance(double distance) {
 
         double flywheel =
-                0.000458708 * Math.pow(distance, 3)
-                        - 0.0894792 * Math.pow(distance, 2)
-                        + 10.97431 * distance
-                        + 974.8646;
+                0.000314305 * Math.pow(distance, 3)
+                        - 0.0724621 * Math.pow(distance, 2)
+                        + 14.10478 * distance
+                        + 632.80974;
 
         double hood =
-                6.12363e-7 * Math.pow(distance, 3)
-                        - 0.000220446 * Math.pow(distance, 2)
-                        + 0.0257331 * distance
-                        - 0.682439;
+                5.87748e-8 * Math.pow(distance, 4)
+                        - 0.0000225442 * Math.pow(distance, 3)
+                        + 0.0030247 * Math.pow(distance, 2)
+                        - 0.157639 * distance
+                        + 2.76044;
 
-        flywheel = Range.clip(flywheel, 0, 2200);
-        hood = Range.clip(hood, 0, 0.35);
+        flywheel = Range.clip(flywheel, 0, 2325);
+        hood = Range.clip(hood, 0, 0.95);
 
         return new double[] { flywheel, hood };
+    }
+
+    public void configureShooterPID(double p, double i, double d, double f) {
+        kP_SHOOT = p;
+        kI_SHOOT = i;
+        kD_SHOOT = d;
+        kF_SHOOT = f;
+    }
+
+    public void configureTurretPID(double p, double i, double d, double f) {
+        kP_TURRET = p;
+        kI_TURRET = i;
+        kD_TURRET = d;
+        kF_TURRET = f;
     }
 }

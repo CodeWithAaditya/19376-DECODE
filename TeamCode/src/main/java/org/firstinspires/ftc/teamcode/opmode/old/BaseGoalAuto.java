@@ -1,9 +1,8 @@
-package org.firstinspires.ftc.teamcode.opmode;
+package org.firstinspires.ftc.teamcode.opmode.old;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
 import static org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit.INCH;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -37,6 +36,8 @@ public abstract class BaseGoalAuto extends LinearOpMode {
     DriveToPoint nav = new DriveToPoint(this); //OpMode member for the point-to-point navigation class
 
     double negate;
+
+    double turretOffset;
 
     double mainSpeed = 0.9;
 
@@ -87,27 +88,44 @@ public abstract class BaseGoalAuto extends LinearOpMode {
 
         if(alliance){
             negate = -1.0;
+            turretOffset = 1.0;
         } else {
             negate = 1.0;
+            turretOffset = 0;
         }
 
-        TARGET_1 = new Pose2D(DistanceUnit.MM,600, 900*negate,AngleUnit.DEGREES,-180*negate);
-        TARGET_2 = new Pose2D(DistanceUnit.MM, 600, 1300*negate, AngleUnit.DEGREES, -180*negate);
-        TARGET_3 = new Pose2D(DistanceUnit.MM,-315,1300*negate, AngleUnit.DEGREES,-180*negate);
-        TARGET_4 = new Pose2D(DistanceUnit.MM,100,1600*negate, AngleUnit.DEGREES,-180*negate);
-        TARGET_5 = new Pose2D(DistanceUnit.MM,-300,1600*negate, AngleUnit.DEGREES,-180*negate);
-        TARGET_6 = new Pose2D(DistanceUnit.MM,600, 900*negate,AngleUnit.DEGREES,-180*negate);
-        TARGET_7 = new Pose2D(DistanceUnit.MM,600,1950*negate, AngleUnit.DEGREES,-180*negate);
-        TARGET_8 = new Pose2D(DistanceUnit.MM,-400,1950*negate, AngleUnit.DEGREES,-180*negate);
-        TARGET_9 = new Pose2D(DistanceUnit.MM,600,1400*negate, AngleUnit.DEGREES,-180*negate);
-        TARGET_10 = new Pose2D(DistanceUnit.MM,600,2550*negate, AngleUnit.DEGREES,-180*negate);
-        TARGET_11 = new Pose2D(DistanceUnit.MM,-400,2550*negate, AngleUnit.DEGREES,-180*negate);
-        TARGET_12 = new Pose2D(DistanceUnit.MM,600,1400*negate, AngleUnit.DEGREES,-180*negate);
+        if(alliance){
+            TARGET_1 = new Pose2D(DistanceUnit.MM,600, 900*negate,AngleUnit.DEGREES,-180*negate);
+            TARGET_2 = new Pose2D(DistanceUnit.MM, 600, 1200*negate, AngleUnit.DEGREES, -180*negate);
+            TARGET_3 = new Pose2D(DistanceUnit.MM,-315,1200*negate, AngleUnit.DEGREES,-180*negate);
+            TARGET_4 = new Pose2D(DistanceUnit.MM,100,1500*negate, AngleUnit.DEGREES,-180*negate);
+            TARGET_5 = new Pose2D(DistanceUnit.MM,-300,1500*negate, AngleUnit.DEGREES,-180*negate);
+            TARGET_6 = new Pose2D(DistanceUnit.MM,600, 900*negate,AngleUnit.DEGREES,-180*negate);
+            TARGET_7 = new Pose2D(DistanceUnit.MM,600,1850*negate, AngleUnit.DEGREES,-180*negate);
+            TARGET_8 = new Pose2D(DistanceUnit.MM,-400,1850*negate, AngleUnit.DEGREES,-180*negate);
+            TARGET_9 = new Pose2D(DistanceUnit.MM,600,1400*negate, AngleUnit.DEGREES,-180*negate);
+            TARGET_10 = new Pose2D(DistanceUnit.MM,600,2450*negate, AngleUnit.DEGREES,-180*negate);
+            TARGET_11 = new Pose2D(DistanceUnit.MM,-400,2450*negate, AngleUnit.DEGREES,-180*negate);
+            TARGET_12 = new Pose2D(DistanceUnit.MM,600,1400*negate, AngleUnit.DEGREES,-180*negate);
+        } else {
+            TARGET_1 = new Pose2D(DistanceUnit.MM,600, 900*negate,AngleUnit.DEGREES,-180*negate);
+            TARGET_2 = new Pose2D(DistanceUnit.MM, 600, 1400*negate, AngleUnit.DEGREES, -180*negate);
+            TARGET_3 = new Pose2D(DistanceUnit.MM,-315,1400*negate, AngleUnit.DEGREES,-180*negate);
+            TARGET_4 = new Pose2D(DistanceUnit.MM,100,1700*negate, AngleUnit.DEGREES,-180*negate);
+            TARGET_5 = new Pose2D(DistanceUnit.MM,-300,1700*negate, AngleUnit.DEGREES,-180*negate);
+            TARGET_6 = new Pose2D(DistanceUnit.MM,600, 900*negate,AngleUnit.DEGREES,-180*negate);
+            TARGET_7 = new Pose2D(DistanceUnit.MM,600,2050*negate, AngleUnit.DEGREES,-180*negate);
+            TARGET_8 = new Pose2D(DistanceUnit.MM,-400,2050*negate, AngleUnit.DEGREES,-180*negate);
+            TARGET_9 = new Pose2D(DistanceUnit.MM,600,1400*negate, AngleUnit.DEGREES,-180*negate);
+            TARGET_10 = new Pose2D(DistanceUnit.MM,600,2650*negate, AngleUnit.DEGREES,-180*negate);
+            TARGET_11 = new Pose2D(DistanceUnit.MM,-400,2650*negate, AngleUnit.DEGREES,-180*negate);
+            TARGET_12 = new Pose2D(DistanceUnit.MM,600,1400*negate, AngleUnit.DEGREES,-180*negate);
+        }
 
         if(alliance){
-            goalPose  = new Pose2D(INCH, -20, 6.5, DEGREES, 0);
+            goalPose  = new Pose2D(INCH, -20, 3, DEGREES, 0);
         } else {
-            goalPose  = new Pose2D(INCH, -20, -6.5, DEGREES, 0);
+            goalPose  = new Pose2D(INCH, -20, -3, DEGREES, 0);
         }
 
         timer = new ElapsedTime();
@@ -124,15 +142,17 @@ public abstract class BaseGoalAuto extends LinearOpMode {
         driveBL.setDirection(DcMotorSimple.Direction.REVERSE);
 
         odo = hardwareMap.get(GoBildaPinpointDriver.class,"odo");
-        odo.setOffsets(8, -165); //these are tuned for 3110-0002-0001 Product Insight #1
+        odo.setOffsets(40, -162); //these are tuned for 3110-0002-0001 Product Insight #1
         odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.FORWARD);
+        odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
         odo.resetPosAndIMU();
 
         //nav.setXYCoefficients(0.02,0.002,0.0,DistanceUnit.MM,12);
         //nav.setYawCoefficients(1,0,0.0, AngleUnit.DEGREES,2);
         nav.setDriveType(DriveToPoint.DriveType.MECANUM);
+
+        intake.shootPosSwingArm();
 
         StateMachine stateMachine;
         stateMachine = StateMachine.WAITING_FOR_START;
@@ -152,7 +172,7 @@ public abstract class BaseGoalAuto extends LinearOpMode {
             odo.update();
             switch (stateMachine){
                 case WAITING_FOR_START:
-                    shooter.setTurretAngle(35*negate);
+                    shooter.setTurretAngle(35*negate+turretOffset);
                     stateMachine = StateMachine.DRIVE_TO_TARGET_1;
                     break;
                 case DRIVE_TO_TARGET_1:
@@ -188,6 +208,7 @@ public abstract class BaseGoalAuto extends LinearOpMode {
                     break;
                 case DRIVE_TO_TARGET_5:
                     if(nav.driveTo(odo.getPosition(), TARGET_5, mainSpeed, 0)){
+                        shooter.setTurretAngle(35*negate);
                         stateMachine = StateMachine.DRIVE_TO_TARGET_6;
                     }
                     break;
@@ -215,7 +236,7 @@ public abstract class BaseGoalAuto extends LinearOpMode {
                     }
                     if(nav.driveTo(odo.getPosition(), TARGET_8, 0.55, 0)){
                         intake.setIntakeState(Intake.IntakeState.OFF);
-                        shooter.setTurretAngle(40*negate);   //holds rest of auto
+                        shooter.setTurretAngle(45*negate+turretOffset);   //holds rest of auto
                         stateMachine = StateMachine.DRIVE_TO_TARGET_9;
                     }
                     break;
@@ -268,7 +289,8 @@ public abstract class BaseGoalAuto extends LinearOpMode {
             driveBL.setPower(nav.getMotorPower(DriveToPoint.DriveMotor.LEFT_BACK));
             driveBR.setPower(nav.getMotorPower(DriveToPoint.DriveMotor.RIGHT_BACK));
 
-            double distance = shooter.distanceToGoal(odo.getPosition(), goalPose);
+//            double distance = shooter.distanceToGoal(odo.getPosition(), goalPose);
+            double distance = 0;
 
             double[] settings = shooter.getShooterSettingsFromDistance(distance);
 

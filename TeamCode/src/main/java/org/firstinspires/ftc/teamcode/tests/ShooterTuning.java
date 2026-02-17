@@ -22,7 +22,7 @@ public class ShooterTuning extends LinearOpMode {
 
     // Increment amounts
     private static final double HOOD_STEP = 0.01;
-    private static final double FLYWHEEL_STEP = 50.0;
+    private static final double FLYWHEEL_STEP = 25;
 
 
 
@@ -84,9 +84,10 @@ public class ShooterTuning extends LinearOpMode {
             shooter.setShooterVelocity(flywheelVel);
 
             shooter.update();
-            Pose2D goalPose  = new Pose2D(INCH, 72, 72, DEGREES, 0); // example goal
+            Pose2D goalPose  = new Pose2D(INCH, 72, -72, DEGREES, 0); // example goal
 
-            double distance = shooter.distanceToGoal(drive.getPose(), goalPose);
+//            double distance = shooter.distanceToGoal(drive.getPose(), goalPose);
+            double distance = 0;
 
             // Telemetry
             telemetry.addData("Hood Position", "%.2f", hoodPos);

@@ -45,7 +45,7 @@ public class FarSideAuto extends LinearOpMode {
         DRIVE_TO_TARGET_5
     }
 
-    static final Pose2D TARGET_1 = new Pose2D(DistanceUnit.MM,254, 0,AngleUnit.DEGREES,0);
+    static final Pose2D TARGET_1 = new Pose2D(DistanceUnit.MM,400, 0,AngleUnit.DEGREES,0);
     static final Pose2D TARGET_2 = new Pose2D(DistanceUnit.MM, 700, 1350, AngleUnit.DEGREES, -180);
     static final Pose2D TARGET_3 = new Pose2D(DistanceUnit.MM,-200,1350, AngleUnit.DEGREES,-180);
     static final Pose2D TARGET_4 = new Pose2D(DistanceUnit.MM, 100, -2600, AngleUnit.DEGREES, 90);
@@ -108,8 +108,8 @@ public class FarSideAuto extends LinearOpMode {
             switch (stateMachine){
                 case WAITING_FOR_START:
                     //the first step in the autonomous
-                    shooter.setShooterVelocity(2800);
-                    shooter.setHoodServoPos(0.3);
+                    shooter.setShooterVelocity(2075);
+                    shooter.setHoodServoPos(0.24);
                     timer.reset();
                     stateMachine = StateMachine.WAIT_TO_SHOOT;
                     break;
