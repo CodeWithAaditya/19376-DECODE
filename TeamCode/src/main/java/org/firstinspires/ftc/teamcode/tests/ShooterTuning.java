@@ -5,20 +5,26 @@ import static org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit.I
 
 import android.icu.util.MeasureUnit;
 
+import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.Pose;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.common.Intake;
 import org.firstinspires.ftc.teamcode.common.Shooter;
+import org.firstinspires.ftc.teamcode.common.drive.Constants;
 import org.firstinspires.ftc.teamcode.common.drive.MecanumDrive;
+import org.firstinspires.ftc.teamcode.opmode.PoseStorage;
 
+@Disabled
 @TeleOp(name = "Shooter Tuner", group = "Test")
 public class ShooterTuning extends LinearOpMode {
 
     private Shooter shooter;
     private Intake intake;
-    private MecanumDrive drive;
+    private Follower follower;
 
     // Increment amounts
     private static final double HOOD_STEP = 0.01;
@@ -31,8 +37,9 @@ public class ShooterTuning extends LinearOpMode {
 
         shooter = new Shooter(hardwareMap);
         intake = new Intake(hardwareMap);
-        drive = new MecanumDrive(hardwareMap);
-
+        follower = Constants.createFollower(hardwareMap);
+        follower.setStartingPose(new Pose(112, 135, Math.toRadians(-90)));
+        follower.update();
 
         // Initialize hood and shooter speed
         double hoodPos = shooter.getHoodServoPos();
@@ -48,7 +55,7 @@ public class ShooterTuning extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive() && !isStopRequested()) {
-            drive.odo.update();
+            follower.update();
             if(gamepad1.right_trigger>0.5){
                 intake.setIntakeState(Intake.IntakeState.ON);
             }else {
@@ -56,18 +63,18 @@ public class ShooterTuning extends LinearOpMode {
             }
 
             // Hood increment
-            if (gamepad1.dpad_up) {
+            if (gamepad1.dpadUpWasPressed()) {
                 hoodPos += HOOD_STEP;
             }
-            if (gamepad1.dpad_down) {
+            if (gamepad1.dpadDownWasPressed()) {
                 hoodPos -= HOOD_STEP;
             }
 
             // Flywheel increment
-            if (gamepad1.dpad_right) {
+            if (gamepad1.dpadRightWasPressed()) {
                 flywheelVel += FLYWHEEL_STEP;
             }
-            if (gamepad1.dpad_left) {
+            if (gamepad1.dpadLeftWasPressed()) {
                 flywheelVel -= FLYWHEEL_STEP;
             }
 
@@ -84,10 +91,9 @@ public class ShooterTuning extends LinearOpMode {
             shooter.setShooterVelocity(flywheelVel);
 
             shooter.update();
-            Pose2D goalPose  = new Pose2D(INCH, 72, -72, DEGREES, 0); // example goal
+            Pose goalPose  = new Pose(144, 144, 0); // example goal
 
-//            double distance = shooter.distanceToGoal(drive.getPose(), goalPose);
-            double distance = 0;
+            double distance = shooter.distanceToGoal(follower.getPose(), goalPose);
 
             // Telemetry
             telemetry.addData("Hood Position", "%.2f", hoodPos);

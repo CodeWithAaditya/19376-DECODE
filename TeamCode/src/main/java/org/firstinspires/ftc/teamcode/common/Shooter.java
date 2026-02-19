@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
@@ -23,7 +24,7 @@ public class Shooter {
 
     private Servo hoodServo;
 
-    private static double kP_SHOOT = 0.02;
+    private static double kP_SHOOT = 0.03;
     private static double kI_SHOOT = 0.0;
     private static double kD_SHOOT = 0.0001;
     private static double kF_SHOOT = 0.0004;
@@ -42,9 +43,9 @@ public class Shooter {
     private static final double TURRET_MIN_DEG = -90.0;
     private static final double TURRET_MAX_DEG =  90.0;
 
-    private static double kP_TURRET = 0.018;
-    private static double kI_TURRET = 0.000;
-    private static double kD_TURRET = 0.0008;
+    private static double kP_TURRET = 0.01;
+    private static double kI_TURRET = 0.0006;
+    private static double kD_TURRET = 0.0005;
     private static double kF_TURRET = 0.020;
 
     private static final double MAX_TURRET_POWER = 1.0;
@@ -153,24 +154,21 @@ public class Shooter {
         double currentAngle = getCorrectedTurretAngle();
         double power = 0;
 
-        if (turretPIDEnabled) {
+        double error = turretTargetAngle - currentAngle;
 
-            double error = turretTargetAngle - currentAngle;
+        turretI += error * dt;
+        double derivative = (error - turretPrevErr) / dt;
+        turretPrevErr = error;
 
-            turretI += error * dt;
-            double derivative = (error - turretPrevErr) / dt;
-            turretPrevErr = error;
+        double rawPID =
+                kP_TURRET * error +
+                        kI_TURRET * turretI +
+                        kD_TURRET * derivative;
 
-            double ff = kF_TURRET * Math.signum(error);  // FEEDFORWARD ADDED
+        double ff = kF_TURRET * Math.signum(error);
 
-            power =
-                    kP_TURRET * error +
-                            kI_TURRET * turretI +
-                            kD_TURRET * derivative +
-                            ff;
-
-            power = Range.clip(power, -MAX_TURRET_POWER, MAX_TURRET_POWER);
-        }
+        power = rawPID + ff;
+        power = Range.clip(power, -MAX_TURRET_POWER, MAX_TURRET_POWER);
 
         if ((currentAngle <= TURRET_MIN_DEG && power < 0) ||
                 (currentAngle >= TURRET_MAX_DEG && power > 0)) {
@@ -224,13 +222,13 @@ public class Shooter {
     public double shotTimeFromDistance(double distance) {
 
         double shotTime =
-                -2.81782e-8 * Math.pow(distance, 4)
-                        + 0.0000108628 * Math.pow(distance, 3)
-                        - 0.00143724 * Math.pow(distance, 2)
-                        + 0.0807649 * distance
-                        - 1.02067;
+                -1.72971e-8 * Math.pow(distance, 4)
+                        + 0.00000679175 * Math.pow(distance, 3)
+                        - 0.000916542 * Math.pow(distance, 2)
+                        + 0.0529144 * distance
+                        - 0.534037;
 
-        shotTime = Range.clip(shotTime, 0, 1.2);
+        shotTime = Range.clip(shotTime, 0.5, 1.0);
 
         return shotTime;
     }
@@ -284,20 +282,19 @@ public class Shooter {
     public double[] getShooterSettingsFromDistance(double distance) {
 
         double flywheel =
-                0.000314305 * Math.pow(distance, 3)
-                        - 0.0724621 * Math.pow(distance, 2)
-                        + 14.10478 * distance
-                        + 632.80974;
+                0.000342551 * Math.pow(distance, 3)
+                        - 0.123393 * Math.pow(distance, 2)
+                        + 22.07109 * distance
+                        + 372.23213;
 
         double hood =
-                5.87748e-8 * Math.pow(distance, 4)
-                        - 0.0000225442 * Math.pow(distance, 3)
-                        + 0.0030247 * Math.pow(distance, 2)
-                        - 0.157639 * distance
-                        + 2.76044;
+                0.00000164692 * Math.pow(distance, 3)
+                        - 0.000625299 * Math.pow(distance, 2)
+                        + 0.0780994 * distance
+                        - 2.50338;
 
-        flywheel = Range.clip(flywheel, 0, 2325);
-        hood = Range.clip(hood, 0, 0.95);
+        flywheel = Range.clip(flywheel, 0, 2150);
+        hood = Range.clip(hood, 0, 0.7);
 
         return new double[] { flywheel, hood };
     }

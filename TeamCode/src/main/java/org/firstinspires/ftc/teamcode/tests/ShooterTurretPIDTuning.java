@@ -4,11 +4,13 @@ import com.bylazar.configurables.annotations.IgnoreConfigurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.common.Shooter;
 
+@Disabled
 @Configurable
 @TeleOp(name = "ShooterTurretPanelsTuner")
 public class ShooterTurretPIDTuning extends LinearOpMode {
@@ -22,15 +24,15 @@ public class ShooterTurretPIDTuning extends LinearOpMode {
     public static double shooterTargetVelocity = 0;
     public static double turretTargetAngle = 0;
 
-    public static double shooter_kP = 0.003;
+    public static double shooter_kP = 0.002;
     public static double shooter_kI = 0.0;
-    public static double shooter_kD = 0.00005;
-    public static double shooter_kF = 0.0005;
+    public static double shooter_kD = 0.0001;
+    public static double shooter_kF = 0.0004;
 
     public static double turret_kP = 0.010;
-    public static double turret_kI = 0.0005;
+    public static double turret_kI = 0.0006;
     public static double turret_kD = 0.0005;
-    public static double turret_kF = 0.025;
+    public static double turret_kF = 0.020;
 
     @IgnoreConfigurable
     static TelemetryManager telemetryM;

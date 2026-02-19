@@ -8,6 +8,7 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -16,6 +17,7 @@ import org.firstinspires.ftc.teamcode.common.Shooter;
 import org.firstinspires.ftc.teamcode.common.drive.Constants;
 
 @Autonomous(name = "Red21Ball", group = "comp")
+@Disabled
 public class Red21Ball extends OpMode {
     private TelemetryManager panelsTelemetry;
     public Follower follower;

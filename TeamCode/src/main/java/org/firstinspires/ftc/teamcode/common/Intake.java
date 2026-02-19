@@ -22,12 +22,13 @@ public class Intake {
 
     static private double SWINGARM_LOW_POS = 0.8;
 
-    static private double SWINGARM_UP_POS = 0.5;
+    static private double SWINGARM_UP_POS = 0.55;
 
     static private double SWINGARM_SHOOT_POS = 0.72;
 
     public enum IntakeState {
         ON(1.0),
+        AUTO_SHOOT(0.65),
         OFF(0.0),
         REVERSE(-1.0);
 
@@ -40,7 +41,7 @@ public class Intake {
 
     public enum GrabdexerState {
         IN(1.0),
-        TRANSFER(0.96),
+        TRANSFER(0.94),
         OUT(0.2),
         MID(0.6);
 

@@ -46,7 +46,7 @@ public class Red18Ball extends OpMode {
                                     new Pose(91.000, 93.000),
                                     new Pose(88.000, 80.000)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(0))
+                    ).setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-40))
                     .build();
 
             spike1 = follower.pathBuilder().addPath(
@@ -54,14 +54,14 @@ public class Red18Ball extends OpMode {
                                     new Pose(88.000, 80.000),
                                     new Pose(86.000, 58.000),
                                     new Pose(106.000, 60.000),
-                                    new Pose(135.000, 59.000)
+                                    new Pose(131.000, 59.000)
                             )
-                    ).setConstantHeadingInterpolation(Math.toRadians(0))
+                    ).setLinearHeadingInterpolation(Math.toRadians(-40), Math.toRadians(0))
                     .build();
 
             shootSpike1 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(135.000, 59.000),
+                                    new Pose(131.000, 59.000),
                                     new Pose(95.000, 57.000),
                                     new Pose(88.000, 80.000)
                             )
@@ -117,23 +117,23 @@ public class Red18Ball extends OpMode {
                             new BezierCurve(
                                     new Pose(130.000, 59.000),
                                     new Pose(91.000, 70.000),
-                                    new Pose(87.000, 83.500)
+                                    new Pose(87.000, 84.000)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(30), Math.toRadians(0))
                     .build();
 
             spike2 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(87.000, 83.500),
-                                    new Pose(126.000, 83.500)
+                                    new Pose(87.000, 84.000),
+                                    new Pose(123.000, 83.000)
                             )
                     ).setTangentHeadingInterpolation()
                     .build();
 
             shootSpike2 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(126.000, 83.500),
-                                    new Pose(87.000, 83.500)
+                                    new Pose(123.000, 83.000),
+                                    new Pose(80.000, 97.000)
                             )
                     ).setTangentHeadingInterpolation()
                     .setReversed()
@@ -141,7 +141,7 @@ public class Red18Ball extends OpMode {
 
             spike3 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(87.000, 83.500),
+                                    new Pose(80.000, 97.000),
                                     new Pose(87.000, 50.000),
                                     new Pose(86.000, 34.000),
                                     new Pose(103.000, 34.000),
@@ -245,6 +245,11 @@ public class Red18Ball extends OpMode {
                     setPathState(nextState);
                 }
                 break;
+            case -2:
+                if (actionTimer.seconds()>0.2) {
+                    setPathState(0);
+                }
+                break;
             case 2:
                 follower.followPath(paths.preload);
                 setPathState(3);
@@ -265,6 +270,7 @@ public class Red18Ball extends OpMode {
                 }
                 break;
             case 6:
+                intake.setGrabdexerState(Intake.GrabdexerState.MID);
                 follower.followPath(paths.shootSpike1);
                 setPathState(7);
                 break;
@@ -280,7 +286,7 @@ public class Red18Ball extends OpMode {
             case 9:
                 intake();
                 if(pathCheck()){
-                    actionDelay = GATE_DELAY;
+                    actionDelay = GATE_DELAY-0.5;
                     setPathState(10);
                 }
                 break;
@@ -291,6 +297,7 @@ public class Red18Ball extends OpMode {
                 }
                 break;
             case 11:
+                intake.setGrabdexerState(Intake.GrabdexerState.MID);
                 follower.followPath(paths.shootGate1);
                 setPathState(12);
                 break;
@@ -317,6 +324,7 @@ public class Red18Ball extends OpMode {
                 }
                 break;
             case 16:
+                intake.setGrabdexerState(Intake.GrabdexerState.MID);
                 follower.followPath(paths.shootGate2);
                 setPathState(17);
                 break;
@@ -343,6 +351,7 @@ public class Red18Ball extends OpMode {
                 }
                 break;
             case 21:
+                intake.setGrabdexerState(Intake.GrabdexerState.MID);
                 follower.followPath(paths.shootGate3);
                 setPathState(22);
                 break;
@@ -370,24 +379,24 @@ public class Red18Ball extends OpMode {
                     shoot(-1, SHOOT_DELAY);
                 }
                 break;
-            case 27:
-                follower.followPath(paths.spike3);
-                setPathState(28);
-                break;
-            case 28:
-                intake();
-                if(pathCheck()){
-                    setPathState(29);
-                }
-                break;
-            case 29:
-                follower.followPath(paths.shootSpike3);
-                setPathState(30);
-            case 30:
-                if(pathCheck()){
-                    shoot(-1, SHOOT_DELAY);
-                }
-                break;
+//            case 27:
+//                follower.followPath(paths.spike3);
+//                setPathState(28);
+//                break;
+//            case 28:
+//                intake();
+//                if(pathCheck()){
+//                    setPathState(29);
+//                }
+//                break;
+//            case 29:
+//                follower.followPath(paths.shootSpike3);
+//                setPathState(30);
+//            case 30:
+//                if(pathCheck()){
+//                    shoot(-1, SHOOT_DELAY);
+//                }
+//                break;
         }
     }
 
@@ -396,7 +405,7 @@ public class Red18Ball extends OpMode {
     public void shoot(int targetState, double delayTime){
         nextState = targetState;
         actionDelay = delayTime;
-        setPathState(0);
+        setPathState(-2);
     }
 
     public boolean pathCheck(){
