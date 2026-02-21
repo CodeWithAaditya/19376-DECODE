@@ -35,8 +35,6 @@ public class Blue18Ball extends OpMode {
         public PathChain shootGate3;
         public PathChain spike2;
         public PathChain shootSpike2;
-        public PathChain spike3;
-        public PathChain shootSpike3;
 
         public Paths(Follower follower) {
 
@@ -131,30 +129,11 @@ public class Blue18Ball extends OpMode {
                     .build();
 
             shootSpike2 = follower.pathBuilder().addPath(
-                            new BezierLine(
+                            new BezierCurve(
                                     new Pose(21.000, 83.000),
-                                    new Pose(64.000, 97.000)
-                            )
-                    ).setTangentHeadingInterpolation()
-                    .setReversed()
-                    .build();
-
-            spike3 = follower.pathBuilder().addPath(
-                            new BezierCurve(
-                                    new Pose(64.000, 97.000),
-                                    new Pose(57.000, 50.000),
-                                    new Pose(58.000, 34.000),
-                                    new Pose(41.000, 34.000),
-                                    new Pose(15.000, 35.000)
-                            )
-                    ).setTangentHeadingInterpolation()
-                    .build();
-
-            shootSpike3 = follower.pathBuilder().addPath(
-                            new BezierCurve(
-                                    new Pose(15.000, 35.000),
-                                    new Pose(38.000, 87.000),
-                                    new Pose(54.000, 100.000)
+                                    new Pose(43.771, 83.621),
+                                    new Pose(50.120, 100.319),
+                                    new Pose(56.199, 105.223)
                             )
                     ).setTangentHeadingInterpolation()
                     .setReversed()
@@ -169,7 +148,7 @@ public class Blue18Ball extends OpMode {
     public Intake intake;
     public Shooter shooter;
 
-    public static final double GATE_DELAY = 2;
+    public static final double GATE_DELAY = 1.8;
     public static final double SHOOT_DELAY = 0.6;
 
     public Pose goalPose = new Pose(0, 144, 0);
@@ -246,7 +225,7 @@ public class Blue18Ball extends OpMode {
                 }
                 break;
             case -2:
-                if (actionTimer.seconds()>0.2) {
+                if (actionTimer.seconds()>0) {
                     setPathState(0);
                 }
                 break;
@@ -286,7 +265,7 @@ public class Blue18Ball extends OpMode {
             case 9:
                 intake();
                 if(pathCheck()){
-                    actionDelay = GATE_DELAY-0.5;
+                    actionDelay = GATE_DELAY-0.8;
                     setPathState(10);
                 }
                 break;
@@ -379,24 +358,6 @@ public class Blue18Ball extends OpMode {
                     shoot(-1, SHOOT_DELAY);
                 }
                 break;
-//            case 27:
-//                follower.followPath(paths.spike3);
-//                setPathState(28);
-//                break;
-//            case 28:
-//                intake();
-//                if(pathCheck()){
-//                    setPathState(29);
-//                }
-//                break;
-//            case 29:
-//                follower.followPath(paths.shootSpike3);
-//                setPathState(30);
-//            case 30:
-//                if(pathCheck()){
-//                    shoot(-1, SHOOT_DELAY);
-//                }
-//                break;
         }
     }
 

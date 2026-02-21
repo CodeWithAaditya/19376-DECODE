@@ -35,8 +35,6 @@ public class Red18Ball extends OpMode {
         public PathChain shootGate3;
         public PathChain spike2;
         public PathChain shootSpike2;
-        public PathChain spike3;
-        public PathChain shootSpike3;
 
         public Paths(Follower follower) {
 
@@ -131,30 +129,11 @@ public class Red18Ball extends OpMode {
                     .build();
 
             shootSpike2 = follower.pathBuilder().addPath(
-                            new BezierLine(
+                            new BezierCurve(
                                     new Pose(123.000, 83.000),
-                                    new Pose(80.000, 97.000)
-                            )
-                    ).setTangentHeadingInterpolation()
-                    .setReversed()
-                    .build();
-
-            spike3 = follower.pathBuilder().addPath(
-                            new BezierCurve(
-                                    new Pose(80.000, 97.000),
-                                    new Pose(87.000, 50.000),
-                                    new Pose(86.000, 34.000),
-                                    new Pose(103.000, 34.000),
-                                    new Pose(129.000, 35.000)
-                            )
-                    ).setTangentHeadingInterpolation()
-                    .build();
-
-            shootSpike3 = follower.pathBuilder().addPath(
-                            new BezierCurve(
-                                    new Pose(129.000, 35.000),
-                                    new Pose(106.000, 87.000),
-                                    new Pose(90.000, 100.000)
+                                    new Pose(100.229, 83.621),
+                                    new Pose(93.880, 100.319),
+                                    new Pose(87.801, 105.223)
                             )
                     ).setTangentHeadingInterpolation()
                     .setReversed()
@@ -379,24 +358,6 @@ public class Red18Ball extends OpMode {
                     shoot(-1, SHOOT_DELAY);
                 }
                 break;
-//            case 27:
-//                follower.followPath(paths.spike3);
-//                setPathState(28);
-//                break;
-//            case 28:
-//                intake();
-//                if(pathCheck()){
-//                    setPathState(29);
-//                }
-//                break;
-//            case 29:
-//                follower.followPath(paths.shootSpike3);
-//                setPathState(30);
-//            case 30:
-//                if(pathCheck()){
-//                    shoot(-1, SHOOT_DELAY);
-//                }
-//                break;
         }
     }
 
