@@ -7,12 +7,10 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-
 public class Climb {
     private Servo ptoServoL, ptoServoR;
 
-    private ColorRangeSensor parkSensorL, parkSensorR;
+    public ColorRangeSensor colorSensor1, colorSensor2;
 
     private DcMotorEx driveBL, driveBR;
 
@@ -21,18 +19,21 @@ public class Climb {
     private static final double PTO_ENGAGE_POS = 0.11;
     private static final double PTO_EBRAKE_POS = 0.7;
 
-    private static final double CLIMB_TARGET = 8192*3.1;
+    private static final double CLIMB_TARGET = 8192 * 3.3;
 
     public Climb(HardwareMap hardwareMap) {
         hMap = hardwareMap;
 
-        ptoServoL = hardwareMap.get(Servo.class,"PTOL");
-        ptoServoR = hardwareMap.get(Servo.class,"PTOR");
+        ptoServoL = hardwareMap.get(Servo.class, "PTOL");
+        ptoServoR = hardwareMap.get(Servo.class, "PTOR");
+
+//        colorSensor1 = hardwareMap.get(ColorRangeSensor.class, "parkSensorL");
+//        colorSensor2 = hardwareMap.get(ColorRangeSensor.class, "parkSensorR");
 
         eBrakePTO();
     }
 
-    public void initClimb(){
+    public void initClimb() {
         driveBL = hMap.get(DcMotorEx.class, "driveBL");
         driveBR = hMap.get(DcMotorEx.class, "driveBR");
         driveBL.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -46,8 +47,8 @@ public class Climb {
         engagePTO();
     }
 
-    public void climbLoop(){
-        if(getClimbPosition()<=CLIMB_TARGET){
+    public void climbLoop() {
+        if (getClimbPosition() <= CLIMB_TARGET) {
             driveBL.setPower(1.0);
             driveBR.setPower(1.0);
         } else {
@@ -56,16 +57,16 @@ public class Climb {
         }
     }
 
-    public int getClimbPosition(){
+    public int getClimbPosition() {
         return -driveBL.getCurrentPosition();
     }
 
-    public void engagePTO(){
+    public void engagePTO() {
         ptoServoL.setPosition(PTO_ENGAGE_POS);
-        ptoServoR.setPosition(PTO_EBRAKE_POS-0.05);
+        ptoServoR.setPosition(PTO_EBRAKE_POS - 0.05);
     }
 
-    public void eBrakePTO(){
+    public void eBrakePTO() {
         ptoServoL.setPosition(PTO_EBRAKE_POS);
         ptoServoR.setPosition(PTO_ENGAGE_POS);
     }

@@ -148,7 +148,7 @@ public class Red18Ball extends OpMode {
     public Intake intake;
     public Shooter shooter;
 
-    public static final double GATE_DELAY = 2;
+    public static final double GATE_DELAY = 1.8;
     public static final double SHOOT_DELAY = 0.6;
 
     public Pose goalPose = new Pose(144, 144, 0);
@@ -161,7 +161,7 @@ public class Red18Ball extends OpMode {
         actionTimer = new ElapsedTime();
 
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(112, 135, Math.toRadians(-90)));
+        follower.setStartingPose(new Pose(113, 135, Math.toRadians(-90)));
 
         paths = new Paths(follower);
 
@@ -225,7 +225,7 @@ public class Red18Ball extends OpMode {
                 }
                 break;
             case -2:
-                if (actionTimer.seconds()>0.2) {
+                if (actionTimer.seconds()>0) {
                     setPathState(0);
                 }
                 break;
@@ -265,7 +265,7 @@ public class Red18Ball extends OpMode {
             case 9:
                 intake();
                 if(pathCheck()){
-                    actionDelay = GATE_DELAY-0.5;
+                    actionDelay = GATE_DELAY-0.6;
                     setPathState(10);
                 }
                 break;

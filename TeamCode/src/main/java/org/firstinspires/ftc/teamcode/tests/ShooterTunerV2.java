@@ -102,7 +102,8 @@ public class ShooterTunerV2 extends LinearOpMode {
 
             shooter.setShooterVelocity(shooterTargetVelocity);
 
-            shooter.setTurretAngle(shooter.autoAimTurretAngle(follower.getPose(), goalPose));
+//            shooter.setTurretAngle(shooter.autoAimTurretAngle(follower.getPose(), goalPose));
+            shooter.setTurretAngle(turretTargetAngle);
 
             shooter.setHoodServoPos(hoodTargetPos);
 

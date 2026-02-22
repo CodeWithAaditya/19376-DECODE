@@ -265,7 +265,7 @@ public class Blue18Ball extends OpMode {
             case 9:
                 intake();
                 if(pathCheck()){
-                    actionDelay = GATE_DELAY-0.8;
+                    actionDelay = GATE_DELAY-0.6;
                     setPathState(10);
                 }
                 break;

@@ -26,8 +26,8 @@ public class Shooter {
 
     private static double kP_SHOOT = 0.03;
     private static double kI_SHOOT = 0.0;
-    private static double kD_SHOOT = 0.0001;
-    private static double kF_SHOOT = 0.0004;
+    private static double kD_SHOOT = 0.00008;
+    private static double kF_SHOOT = 0.000425;
 
     private double shooterTargetVel = 0;
     private double shooterI = 0;
