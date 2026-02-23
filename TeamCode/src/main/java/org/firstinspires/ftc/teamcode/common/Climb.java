@@ -12,14 +12,14 @@ public class Climb {
 
     public ColorRangeSensor colorSensor1, colorSensor2;
 
-    private DcMotorEx driveBL, driveBR;
+    private DcMotorEx driveBL, driveBR, driveFL, driveFR;
 
     private HardwareMap hMap;
 
     private static final double PTO_ENGAGE_POS = 0.11;
     private static final double PTO_EBRAKE_POS = 0.7;
 
-    private static final double CLIMB_TARGET = 8192 * 3.3;
+    private static final double CLIMB_TARGET = 8192 * 3.45;
 
     public Climb(HardwareMap hardwareMap) {
         hMap = hardwareMap;
@@ -36,6 +36,10 @@ public class Climb {
     public void initClimb() {
         driveBL = hMap.get(DcMotorEx.class, "driveBL");
         driveBR = hMap.get(DcMotorEx.class, "driveBR");
+        driveFL = hMap.get(DcMotorEx.class, "driveFL");
+        driveFR = hMap.get(DcMotorEx.class, "driveFR");
+
+        driveFL.setDirection(DcMotorSimple.Direction.REVERSE);
         driveBL.setDirection(DcMotorSimple.Direction.REVERSE);
 
         driveBL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -51,9 +55,13 @@ public class Climb {
         if (getClimbPosition() <= CLIMB_TARGET) {
             driveBL.setPower(1.0);
             driveBR.setPower(1.0);
+            driveFL.setPower(-0.6);
+            driveFR.setPower(-0.6);
         } else {
             driveBL.setPower(0.3);
             driveBR.setPower(0.3);
+            driveFL.setPower(0.0);
+            driveFR.setPower(0.0);
         }
     }
 

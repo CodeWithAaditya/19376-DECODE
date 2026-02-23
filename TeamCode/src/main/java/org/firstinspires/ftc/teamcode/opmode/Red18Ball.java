@@ -70,14 +70,14 @@ public class Red18Ball extends OpMode {
                             new BezierCurve(
                                     new Pose(88.000, 80.000),
                                     new Pose(98.000, 65.000),
-                                    new Pose(130.000, 59.000)
+                                    new Pose(131.000, 60.000)
                             )
                     ).setConstantHeadingInterpolation(Math.toRadians(30))
                     .build();
 
             shootGate1 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(130.000, 59.000),
+                                    new Pose(131.000, 60.000),
                                     new Pose(98.000, 65.000),
                                     new Pose(88.000, 80.000)
                             )
@@ -88,14 +88,14 @@ public class Red18Ball extends OpMode {
                             new BezierCurve(
                                     new Pose(88.000, 80.000),
                                     new Pose(98.000, 65.000),
-                                    new Pose(130.000, 59.000)
+                                    new Pose(131.000, 60.000)
                             )
                     ).setConstantHeadingInterpolation(Math.toRadians(30))
                     .build();
 
             shootGate2 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(130.000, 59.000),
+                                    new Pose(131.000, 60.000),
                                     new Pose(98.000, 65.000),
                                     new Pose(88.000, 80.000)
                             )
@@ -106,14 +106,14 @@ public class Red18Ball extends OpMode {
                             new BezierCurve(
                                     new Pose(88.000, 80.000),
                                     new Pose(98.000, 65.000),
-                                    new Pose(130.000, 59.000)
+                                    new Pose(131.000, 60.000)
                             )
                     ).setConstantHeadingInterpolation(Math.toRadians(30))
                     .build();
 
             shootGate3 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(130.000, 59.000),
+                                    new Pose(131.000, 60.000),
                                     new Pose(91.000, 70.000),
                                     new Pose(87.000, 84.000)
                             )
@@ -132,8 +132,8 @@ public class Red18Ball extends OpMode {
                             new BezierCurve(
                                     new Pose(123.000, 83.000),
                                     new Pose(100.229, 83.621),
-                                    new Pose(93.880, 100.319),
-                                    new Pose(87.801, 105.223)
+                                    new Pose(95.000, 104.000),
+                                    new Pose(87.000, 111.000)
                             )
                     ).setTangentHeadingInterpolation()
                     .setReversed()
@@ -277,6 +277,7 @@ public class Red18Ball extends OpMode {
                 break;
             case 11:
                 intake.setGrabdexerState(Intake.GrabdexerState.MID);
+                intake.setIntakeState(Intake.IntakeState.OFF);
                 follower.followPath(paths.shootGate1);
                 setPathState(12);
                 break;
@@ -304,6 +305,7 @@ public class Red18Ball extends OpMode {
                 break;
             case 16:
                 intake.setGrabdexerState(Intake.GrabdexerState.MID);
+                intake.setIntakeState(Intake.IntakeState.OFF);
                 follower.followPath(paths.shootGate2);
                 setPathState(17);
                 break;
@@ -331,6 +333,7 @@ public class Red18Ball extends OpMode {
                 break;
             case 21:
                 intake.setGrabdexerState(Intake.GrabdexerState.MID);
+                intake.setIntakeState(Intake.IntakeState.OFF);
                 follower.followPath(paths.shootGate3);
                 setPathState(22);
                 break;

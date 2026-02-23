@@ -24,8 +24,8 @@ public abstract class BaseTeleOp extends LinearOpMode {
 
     Pose goalPose;
 
-    private static final Pose RED_PARK_POSE  = new Pose(42, 30, Math.toRadians(135));
-    private static final Pose BLUE_PARK_POSE = new Pose(106, 34, Math.toRadians(45));
+    private static final Pose RED_PARK_POSE  = new Pose(38, 30, Math.toRadians(132));
+    private static final Pose BLUE_PARK_POSE = new Pose(104, 30, Math.toRadians(42));
 
     public enum RobotState {
         IDLE,
@@ -124,18 +124,27 @@ public abstract class BaseTeleOp extends LinearOpMode {
             if (gamepad1.backWasPressed())  { shooter.trimTurretOffset(-2); }
             if (gamepad1.startWasPressed()) { shooter.trimTurretOffset(2);  }
 
+            if(gamepad1.yWasPressed()){
+                if(alliance){
+                    follower.setPose(new Pose(112,8, Math.toRadians(90))); //blue
+                } else {
+                    follower.setPose(new Pose(30,8, Math.toRadians(90))); //red
+                }
+            }
+
             if (gamepad1.guideWasPressed() && robotState != RobotState.PARK && robotState != RobotState.CLIMBING) {
                 shooter.setTurretAngle(0.0);
                 shooter.setHoodServoPos(0);
                 shooter.setShooterVelocity(0);
                 intake.setIntakeState(Intake.IntakeState.OFF);
                 intake.setGrabdexerState(Intake.GrabdexerState.IN);
-                Pose target = alliance ? BLUE_PARK_POSE : RED_PARK_POSE;
-                PathChain toPark = follower.pathBuilder()
-                        .addPath(new Path(new BezierLine(follower.getPose(), target)))
-                        .setConstantHeadingInterpolation(target.getHeading())
-                        .build();
-                follower.followPath(toPark, true);
+                // reset pos here maybe
+//                Pose target = alliance ? BLUE_PARK_POSE : RED_PARK_POSE;
+//                PathChain toPark = follower.pathBuilder()
+//                        .addPath(new Path(new BezierLine(follower.getPose(), target)))
+//                        .setConstantHeadingInterpolation(target.getHeading())
+//                        .build();
+//                follower.followPath(toPark, true);
                 robotState = RobotState.PARK;
             }
 
@@ -148,10 +157,11 @@ public abstract class BaseTeleOp extends LinearOpMode {
             }
 
             if (robotState != RobotState.PARK && robotState != RobotState.CLIMBING) {
+                double speedMultiplier = gamepad1.right_bumper ? 0.3 : 1.0;
                 follower.setTeleOpDrive(
-                        -gamepad1.left_stick_y,
-                        -gamepad1.left_stick_x,
-                        -gamepad1.right_stick_x * 0.6,
+                        -gamepad1.left_stick_y  * speedMultiplier,
+                        -gamepad1.left_stick_x  * speedMultiplier,
+                        -gamepad1.right_stick_x * 0.6 * speedMultiplier,
                         true
                 );
             }
