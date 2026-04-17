@@ -24,6 +24,7 @@ public class NewIntakeTest extends LinearOpMode {
         waitForStart();
 
         while(opModeIsActive() && !isStopRequested()){
+            intake.lowerSwingArm();
             if(gamepad1.right_trigger>0.5){
                 intake.setIntakeState(Intake.IntakeState.ON);
                 intakeServo.setPower(1.0);
