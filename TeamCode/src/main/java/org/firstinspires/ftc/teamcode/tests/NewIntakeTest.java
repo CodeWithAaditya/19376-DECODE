@@ -42,6 +42,14 @@ public class NewIntakeTest extends LinearOpMode {
                 intake.setIntakeState(Intake.IntakeState.OFF);
                 intakeServo.setPower(0.0);
             }
+
+            if (gamepad1.dpad_up){
+                intake.raiseSwingArm();
+            } else if (gamepad1.dpad_down) {
+                intake.lowerSwingArm();
+            }
+
+            shooter.update();
         }
     }
 }
