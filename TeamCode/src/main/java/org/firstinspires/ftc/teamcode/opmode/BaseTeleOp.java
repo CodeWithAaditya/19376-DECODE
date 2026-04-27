@@ -1,13 +1,9 @@
 package org.firstinspires.ftc.teamcode.opmode;
 
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.Path;
-import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.common.Climb;
 import org.firstinspires.ftc.teamcode.common.Intake;
 import org.firstinspires.ftc.teamcode.common.Shooter;
 import org.firstinspires.ftc.teamcode.common.drive.Constants;
@@ -20,19 +16,13 @@ public abstract class BaseTeleOp extends LinearOpMode {
     private Follower follower;
     public Intake intake;
     public Shooter shooter;
-    public Climb climb;
 
     Pose goalPose;
-
-    private static final Pose RED_PARK_POSE  = new Pose(38, 30, Math.toRadians(132));
-    private static final Pose BLUE_PARK_POSE = new Pose(104, 30, Math.toRadians(42));
 
     public enum RobotState {
         IDLE,
         INTAKE,
-        SHOOT,
-        PARK,
-        CLIMBING
+        SHOOT
     }
 
     public RobotState robotState = RobotState.IDLE;
@@ -46,7 +36,6 @@ public abstract class BaseTeleOp extends LinearOpMode {
 
         intake  = new Intake(hardwareMap);
         shooter = new Shooter(hardwareMap);
-        climb   = new Climb(hardwareMap);
 
         alliance = getAlliance();
 
@@ -88,18 +77,6 @@ public abstract class BaseTeleOp extends LinearOpMode {
                     intake.shootPosSwingArm();
                     break;
 
-                case PARK:
-                    if (!follower.isBusy()) {
-                        follower.breakFollowing();
-                        shooter.setTurretManual(0.0);
-                        climb.initClimb();
-                        robotState = RobotState.CLIMBING;
-                    }
-                    break;
-
-                case CLIMBING:
-                    climb.climbLoop();
-                    break;
             }
 
             if (gamepad1.a) {
@@ -132,39 +109,18 @@ public abstract class BaseTeleOp extends LinearOpMode {
                 }
             }
 
-            if (gamepad1.guideWasPressed() && robotState != RobotState.PARK && robotState != RobotState.CLIMBING) {
-                shooter.setTurretAngle(0.0);
-                shooter.setHoodServoPos(0);
-                shooter.setShooterVelocity(0);
-                intake.setIntakeState(Intake.IntakeState.OFF);
-                intake.setGrabdexerState(Intake.GrabdexerState.IN);
-                // reset pos here maybe
-//                Pose target = alliance ? BLUE_PARK_POSE : RED_PARK_POSE;
-//                PathChain toPark = follower.pathBuilder()
-//                        .addPath(new Path(new BezierLine(follower.getPose(), target)))
-//                        .setConstantHeadingInterpolation(target.getHeading())
-//                        .build();
-//                follower.followPath(toPark, true);
-                robotState = RobotState.PARK;
-            }
+            double[] shooterSettings = shooter.SOTMTurretAngle(
+                    follower.getPose(), goalPose, follower.getVelocity());
+            shooter.setTurretAngle(shooterSettings[0]);
+            shooter.setShooterVelocity(shooterSettings[1]);
 
-            if (robotState != RobotState.PARK && robotState != RobotState.CLIMBING) {
-                double[] shooterSettings = shooter.SOTMTurretAngle(
-                        follower.getPose(), goalPose, follower.getVelocity());
-                shooter.setTurretAngle(shooterSettings[0]);
-                shooter.setShooterVelocity(shooterSettings[1]);
-                shooter.setHoodServoPos(shooterSettings[2]);
-            }
-
-            if (robotState != RobotState.PARK && robotState != RobotState.CLIMBING) {
-                double speedMultiplier = gamepad1.right_bumper ? 0.3 : 1.0;
-                follower.setTeleOpDrive(
-                        -gamepad1.left_stick_y  * speedMultiplier,
-                        -gamepad1.left_stick_x  * speedMultiplier,
-                        -gamepad1.right_stick_x * 0.6 * speedMultiplier,
-                        true
-                );
-            }
+            double speedMultiplier = gamepad1.right_bumper ? 0.3 : 1.0;
+            follower.setTeleOpDrive(
+                    -gamepad1.left_stick_y  * speedMultiplier,
+                    -gamepad1.left_stick_x  * speedMultiplier,
+                    -gamepad1.right_stick_x * 0.6 * speedMultiplier,
+                    true
+            );
 
             shooter.update();
             follower.update();

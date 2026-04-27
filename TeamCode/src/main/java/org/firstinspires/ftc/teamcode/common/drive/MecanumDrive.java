@@ -9,7 +9,6 @@ import static org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit.M
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -17,16 +16,12 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 public class MecanumDrive {
     public DcMotor driveFL, driveFR, driveBL, driveBR;
-    private Servo ptoServoL, ptoServoR;
     public GoBildaPinpointDriver odo;
 
     private double headingTargetRad = 0.0;
 
     private static final double HEADING_kP = 0.1;
     private static final double MAX_YAW_POWER = 0.5;
-
-    private static final double PTO_ENGAGE_POS = 0.11;
-    private static final double PTO_EBRAKE_POS = 0.7;
 
     public MecanumDrive(HardwareMap hardwareMap) {
         driveFL = hardwareMap.get(DcMotor.class, "driveFL");
@@ -43,12 +38,6 @@ public class MecanumDrive {
 
         driveFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         driveFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        ptoServoL = hardwareMap.get(Servo.class,"PTOL");
-        ptoServoR = hardwareMap.get(Servo.class,"PTOR");
-
-        //change this after servos are zeroed
-        eBrakePTO();
 
         odo = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
         odo.setOffsets(-40, -162, MM);
@@ -157,16 +146,6 @@ public class MecanumDrive {
         }
 
         setMotorPowers(powerFL, powerFR, powerBL, powerBR);
-    }
-
-    public void engagePTO(){
-        ptoServoL.setPosition(PTO_ENGAGE_POS);
-        ptoServoR.setPosition(PTO_EBRAKE_POS-0.05);
-    }
-
-    public void eBrakePTO(){
-        ptoServoL.setPosition(PTO_EBRAKE_POS);
-        ptoServoR.setPosition(PTO_ENGAGE_POS);
     }
 
     public Pose2D getPose() {

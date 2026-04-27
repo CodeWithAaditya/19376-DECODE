@@ -115,11 +115,9 @@ public class RedFar9 extends OpMode {
     public Shooter shooter;
 
     public static final double PRELOAD_ANGLE = -20;
-    public static final double PRELOAD_HOOD = 0.35;
     public static final double PRELOAD_FLYWHEEL = 1900;
 
     public static final double CYCLE_ANGLE = 67;
-    public static final double CYCLE_HOOD = 0.3;
     public static final double CYCLE_FLYWHEEL = 1850;
 
     @Override
@@ -173,7 +171,6 @@ public class RedFar9 extends OpMode {
                 break;
             case 1:
                 shooter.setTurretAngle(PRELOAD_ANGLE);
-                shooter.setHoodServoPos(PRELOAD_HOOD);
                 shooter.setShooterVelocity(PRELOAD_FLYWHEEL);
                 delay(-2, 3.0);
                 break;
@@ -217,7 +214,6 @@ public class RedFar9 extends OpMode {
             case 8:
                 //maybe add intake off here
                 shooter.setTurretAngle(CYCLE_ANGLE);
-                shooter.setHoodServoPos(CYCLE_HOOD);
                 shooter.setShooterVelocity(CYCLE_FLYWHEEL);
                 follower.followPath(paths.shootHp);
                 setPathState(9);
@@ -244,7 +240,6 @@ public class RedFar9 extends OpMode {
             case 12:
                 //maybe add turn off intake here
                 shooter.setTurretAngle(CYCLE_ANGLE+2);
-                shooter.setHoodServoPos(CYCLE_HOOD);
                 shooter.setShooterVelocity(CYCLE_FLYWHEEL);
                 follower.followPath(paths.shootSpike);
                 setPathState(13);

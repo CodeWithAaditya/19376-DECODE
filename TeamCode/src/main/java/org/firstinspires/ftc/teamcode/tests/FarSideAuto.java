@@ -110,7 +110,6 @@ public class FarSideAuto extends LinearOpMode {
                 case WAITING_FOR_START:
                     //the first step in the autonomous
                     shooter.setShooterVelocity(2075);
-                    shooter.setHoodServoPos(0.24);
                     timer.reset();
                     stateMachine = StateMachine.WAIT_TO_SHOOT;
                     break;

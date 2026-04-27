@@ -294,11 +294,7 @@ public abstract class BaseGoalAuto extends LinearOpMode {
 
             double[] settings = shooter.getShooterSettingsFromDistance(distance);
 
-            double flywheelVel = settings[0];
-            double hoodPos = settings[1];
-
-            shooter.setShooterVelocity(flywheelVel);
-            shooter.setHoodServoPos(hoodPos);
+            shooter.setShooterVelocity(settings[0]);
 
             shooter.update();
 

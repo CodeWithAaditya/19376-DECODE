@@ -182,17 +182,10 @@ public class Red18Ball extends OpMode {
         shooter.update();
         autonomousPathUpdate();
 
-//        double[] shooterSettings = shooter.SOTMTurretAngle(follower.getPose(), goalPose, follower.getVelocity());
-//
-//        shooter.setTurretAngle(shooterSettings[0]);
-//        shooter.setShooterVelocity(shooterSettings[1]);
-//        shooter.setHoodServoPos(shooterSettings[2]);
+        double[] shooterSettings = shooter.SOTMTurretAngle(follower.getPose(), goalPose, follower.getVelocity());
 
-        double[] shooterSettings = shooter.getShooterSettingsFromDistance(shooter.distanceToGoal(follower.getPose(), goalPose));
-
-        shooter.setShooterVelocity(shooterSettings[0]);
-        shooter.setHoodServoPos(shooterSettings[1]);
-        shooter.setTurretAngle(shooter.autoAimTurretAngle(follower.getPose(), goalPose));
+        shooter.setTurretAngle(shooterSettings[0]);
+        shooter.setShooterVelocity(shooterSettings[1]);
 
         panelsTelemetry.debug("Path State", pathState);
         panelsTelemetry.debug("X", follower.getPose().getX());

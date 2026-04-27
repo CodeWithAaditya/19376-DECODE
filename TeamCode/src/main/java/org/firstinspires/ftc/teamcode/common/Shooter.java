@@ -22,12 +22,10 @@ public class Shooter {
     private CRServo turretServoL;
     private CRServo turretServoR;
 
-    private Servo hoodServo;
-
-    private static double kP_SHOOT = 0.03;
+    private static double kP_SHOOT = 0.02;
     private static double kI_SHOOT = 0.0;
     private static double kD_SHOOT = 0.00008;
-    private static double kF_SHOOT = 0.000425;
+    private static double kF_SHOOT = 0.0005;
 
     private double shooterTargetVel = 0;
     private double shooterI = 0;
@@ -48,14 +46,18 @@ public class Shooter {
     private static double kD_TURRET = 0.0005;
     private static double kF_TURRET = 0.020;
 
+//    private static double kP_TURRET = 0.008;
+//    private static double kI_TURRET = 0.0007;
+//    private static double kD_TURRET = 0.0008;
+//    private static double kF_TURRET = 0.032;
+
+
     private static final double MAX_TURRET_POWER = 1.0;
 
     private double turretTargetAngle = 0;
     private double turretI = 0;
     private double turretPrevErr = 0;
     private boolean turretPIDEnabled = true;
-
-    private double hoodTargetPos = 0.0;
 
     private final ElapsedTime dtTimer = new ElapsedTime();
 
@@ -79,9 +81,6 @@ public class Shooter {
         turretServoL = hMap.get(CRServo.class, "turretServoL");
         turretServoR = hMap.get(CRServo.class, "turretServoR");
 
-        hoodServo = hMap.get(Servo.class, "hoodServo");
-        hoodServo.setPosition(hoodTargetPos);
-
         dtTimer.reset();
     }
 
@@ -103,12 +102,12 @@ public class Shooter {
     }
 
     public double getShooterVelocity() {
-        return shooterMotorL.getVelocity();
+        return -shooterMotorL.getVelocity();
     }
 
     private void updateShooter(double dt) {
 
-        double currentVel = shooterMotorL.getVelocity();
+        double currentVel = getShooterVelocity();
         double error = shooterTargetVel - currentVel;
 
         shooterI += error * dt;
@@ -179,15 +178,6 @@ public class Shooter {
         turretServoR.setPower(power);
     }
 
-    public double getHoodServoPos() {
-        return hoodServo.getPosition();
-    }
-
-    public void setHoodServoPos(double targetPos) {
-        hoodTargetPos = Range.clip(targetPos, 0.0, 1.0);
-        hoodServo.setPosition(hoodTargetPos);
-    }
-
     private double ticksToDegrees(double ticks) {
         return (ticks / TICKS_PER_REV) * 360.0;
     }
@@ -216,19 +206,18 @@ public class Shooter {
         double[] correctedShooterSettings =
                 getShooterSettingsFromDistance(distanceToGoal(robotPose, correctedGoalPos));
 
-        return new double[] {autoAimTurretAngle(robotPose, correctedGoalPos), correctedShooterSettings[0], correctedShooterSettings[1]};
+        return new double[] {autoAimTurretAngle(robotPose, correctedGoalPos), correctedShooterSettings[0]};
     }
 
     public double shotTimeFromDistance(double distance) {
 
         double shotTime =
-                -1.72971e-8 * Math.pow(distance, 4)
-                        + 0.00000679175 * Math.pow(distance, 3)
-                        - 0.000916542 * Math.pow(distance, 2)
-                        + 0.0529144 * distance
-                        - 0.534037;
+                8.7886e-7 * Math.pow(distance, 3)
+                        - 0.000264392 * Math.pow(distance, 2)
+                        + 0.0309481 * distance
+                        - 0.619251;
 
-        shotTime = Range.clip(shotTime, 0.5, 1.0);
+        shotTime = Range.clip(shotTime, 0.38, 1.1);
 
         return shotTime;
     }
@@ -282,21 +271,14 @@ public class Shooter {
     public double[] getShooterSettingsFromDistance(double distance) {
 
         double flywheel =
-                0.000342551 * Math.pow(distance, 3)
-                        - 0.123393 * Math.pow(distance, 2)
-                        + 22.07109 * distance
-                        + 372.23213;
+                0.000647334 * Math.pow(distance, 3)
+                        - 0.154057 * Math.pow(distance, 2)
+                        + 18.43132 * distance
+                        + 170.94439;
 
-        double hood =
-                0.00000164692 * Math.pow(distance, 3)
-                        - 0.000625299 * Math.pow(distance, 2)
-                        + 0.0780994 * distance
-                        - 2.50338;
+        flywheel = Range.clip(flywheel, 0, 1650);
 
-        flywheel = Range.clip(flywheel, 0, 2150);
-        hood = Range.clip(hood, 0, 0.7);
-
-        return new double[] { flywheel, hood };
+        return new double[] { flywheel };
     }
 
     public void configureShooterPID(double p, double i, double d, double f) {

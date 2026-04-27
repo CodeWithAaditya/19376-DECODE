@@ -14,11 +14,15 @@ public class Intake {
 
     private DcMotorEx intakeMotor = null;
 
-    private Servo grabDexServo = null;
+    private Servo grabDexServoL = null;
+
+    private Servo grabDexServoR = null;
 
     private Servo swingArmServo = null;
 
-    private ColorRangeSensor colorRangeSensor = null;
+    private ColorRangeSensor ballSensorL = null;
+
+    private ColorRangeSensor ballSensorR = null;
 
     static private double SWINGARM_LOW_POS = 0.8;
 
@@ -68,12 +72,15 @@ public class Intake {
 
     public void init(HardwareMap hMap) {
         intakeMotor = hMap.get(DcMotorEx.class, "intakeMotor");
-        grabDexServo = hMap.get(Servo.class, "grabDexServo");
+        grabDexServoL = hMap.get(Servo.class, "grabDexServoL");
+        grabDexServoR = hMap.get(Servo.class, "grabDexServoR");
         swingArmServo = hMap.get(Servo.class, "swingArmServo");
-        colorRangeSensor = hMap.get(ColorRangeSensor.class, "colorSensor");
+        ballSensorL = hMap.get(ColorRangeSensor.class, "ballSensorL");
+        ballSensorR = hMap.get(ColorRangeSensor.class, "ballSensorR");
 
         intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        colorRangeSensor.setGain(8);
+        ballSensorL.setGain(8);
+        ballSensorR.setGain(8);
 
         setGrabdexerState(grabdexerState);
         lowerSwingArm();
@@ -86,7 +93,8 @@ public class Intake {
 
     public void setGrabdexerState(GrabdexerState newState) {
         this.grabdexerState = newState;
-        grabDexServo.setPosition(grabdexerState.position);
+        grabDexServoL.setPosition(grabdexerState.position);
+        grabDexServoR.setPosition(grabdexerState.position);
     }
 
     public void lowerSwingArm(){
@@ -102,7 +110,7 @@ public class Intake {
     }
 
     public DetectedColor getDectectedColor(Telemetry telemetry){
-        NormalizedRGBA colors = colorRangeSensor.getNormalizedColors();
+        NormalizedRGBA colors = ballSensorL.getNormalizedColors();
 
         float normRed, normGreen, normBlue;
 
@@ -117,8 +125,9 @@ public class Intake {
     }
 
     public boolean isBallInGrabdexer(){
-        double threshold = 70;
-        double distance = colorRangeSensor.getDistance(DistanceUnit.MM);
-        return distance < threshold;
+        double threshold = 64;
+        double distance1 = ballSensorL.getDistance(DistanceUnit.MM);
+        double distance2 = ballSensorR.getDistance(DistanceUnit.MM);
+        return distance1 < threshold || distance2 < threshold;
     }
 }

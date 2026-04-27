@@ -209,7 +209,6 @@ public class Red21Ball extends OpMode {
 
         shooter.setTurretAngle(shooterSettings[0]);
         shooter.setShooterVelocity(shooterSettings[1]);
-        shooter.setHoodServoPos(shooterSettings[2]);
 
         panelsTelemetry.debug("Path State", pathState);
         panelsTelemetry.debug("X", follower.getPose().getX());

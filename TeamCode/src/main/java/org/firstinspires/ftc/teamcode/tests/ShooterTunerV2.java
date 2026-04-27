@@ -28,15 +28,14 @@ public class ShooterTunerV2 extends LinearOpMode {
     // ===============================
 
     // Targets
-    public static double hoodTargetPos = 0.0;
     public static double shooterTargetVelocity = 0.0;
     public static double turretTargetAngle = 0.0;
 
     // Shooter PID
-    public static double shooter_kP = 0.002;
+    public static double shooter_kP = 0.02;
     public static double shooter_kI = 0.0;
-    public static double shooter_kD = 0.0001;
-    public static double shooter_kF = 0.0004;
+    public static double shooter_kD = 0.00008;
+    public static double shooter_kF = 0.0005;
 
     // Turret PID
     public static double turret_kP = 0.010;
@@ -103,9 +102,7 @@ public class ShooterTunerV2 extends LinearOpMode {
             shooter.setShooterVelocity(shooterTargetVelocity);
 
 //            shooter.setTurretAngle(shooter.autoAimTurretAngle(follower.getPose(), goalPose));
-            shooter.setTurretAngle(turretTargetAngle);
-
-            shooter.setHoodServoPos(hoodTargetPos);
+            shooter.setTurretAngle(-turretTargetAngle);
 
             shooter.update();
 
@@ -121,7 +118,6 @@ public class ShooterTunerV2 extends LinearOpMode {
 
             double actualVelocity = shooter.getShooterVelocity();
             double actualTurret = shooter.getTurretAngle();
-            double actualHood = shooter.getHoodServoPos();
 
             // ===============================
             // PANELS TELEMETRY
@@ -134,9 +130,6 @@ public class ShooterTunerV2 extends LinearOpMode {
 
             telemetryM.addData("TurretTarget_deg", turretTargetAngle);
             telemetryM.addData("TurretActual_deg", actualTurret);
-
-            telemetryM.addData("HoodTarget", hoodTargetPos);
-            telemetryM.addData("HoodActual", actualHood);
 
             telemetryM.update(telemetry);
         }

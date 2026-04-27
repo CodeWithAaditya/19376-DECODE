@@ -26,8 +26,6 @@ public class ShooterTuning extends LinearOpMode {
     private Intake intake;
     private Follower follower;
 
-    // Increment amounts
-    private static final double HOOD_STEP = 0.01;
     private static final double FLYWHEEL_STEP = 25;
 
 
@@ -41,14 +39,11 @@ public class ShooterTuning extends LinearOpMode {
         follower.setStartingPose(new Pose(112, 135, Math.toRadians(-90)));
         follower.update();
 
-        // Initialize hood and shooter speed
-        double hoodPos = shooter.getHoodServoPos();
         double flywheelVel = shooter.getShooterVelocity();
 
         telemetry.addLine("Shooter Tuner Ready!");
-        telemetry.addLine("DPAD UP/DOWN: Hood + / -");
         telemetry.addLine("DPAD LEFT/RIGHT: Flywheel + / -");
-        telemetry.addLine("X: Reset Hood | Y: Stop Flywheel");
+        telemetry.addLine("Y: Stop Flywheel");
         telemetry.addLine("A: Print distance to goal");
         telemetry.update();
 
@@ -62,14 +57,6 @@ public class ShooterTuning extends LinearOpMode {
                 intake.setIntakeState(Intake.IntakeState.OFF);
             }
 
-            // Hood increment
-            if (gamepad1.dpadUpWasPressed()) {
-                hoodPos += HOOD_STEP;
-            }
-            if (gamepad1.dpadDownWasPressed()) {
-                hoodPos -= HOOD_STEP;
-            }
-
             // Flywheel increment
             if (gamepad1.dpadRightWasPressed()) {
                 flywheelVel += FLYWHEEL_STEP;
@@ -79,15 +66,12 @@ public class ShooterTuning extends LinearOpMode {
             }
 
             // Clamp values
-            hoodPos = Math.max(0.0, Math.min(1.0, hoodPos));
             flywheelVel = Math.max(0.0, flywheelVel);
 
             // Quick resets
-            if (gamepad1.x) hoodPos = 0.0;
             if (gamepad1.y) flywheelVel = 0.0;
 
             // Apply changes
-            shooter.setHoodServoPos(hoodPos);
             shooter.setShooterVelocity(flywheelVel);
 
             shooter.update();
@@ -96,7 +80,6 @@ public class ShooterTuning extends LinearOpMode {
             double distance = shooter.distanceToGoal(follower.getPose(), goalPose);
 
             // Telemetry
-            telemetry.addData("Hood Position", "%.2f", hoodPos);
             telemetry.addData("Flywheel Velocity", "%.0f ticks/s", flywheelVel);
             telemetry.addData("Distance to Goal", "%.2f in", distance);
             telemetry.update();

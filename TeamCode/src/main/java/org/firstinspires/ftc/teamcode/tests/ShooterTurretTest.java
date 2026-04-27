@@ -27,15 +27,6 @@ public class ShooterTurretTest extends LinearOpMode {
             if (gamepad1.dpad_left)  shooter.setTurretAngle(0);
             if (gamepad1.dpad_right) shooter.setTurretAngle(45);
 
-            if(gamepad1.dpad_up){
-                shooter.setHoodServoPos(shooter.getHoodServoPos()+0.01);
-                sleep(100);
-            }
-            if(gamepad1.dpad_down){
-                shooter.setHoodServoPos(shooter.getHoodServoPos()-0.01);
-                sleep(100);
-            }
-
             shooter.update();
         }
     }
