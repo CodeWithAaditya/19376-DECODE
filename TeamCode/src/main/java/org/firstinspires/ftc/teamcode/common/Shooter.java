@@ -22,19 +22,18 @@ public class Shooter {
     private CRServo turretServoL;
     private CRServo turretServoR;
 
-    private static double kP_SHOOT = 0.008;
+    private static double kP_SHOOT = 0.004;
     private static double kI_SHOOT = 0.0;
-    private static double kD_SHOOT = 0.0004;
-    private static double kF_SHOOT = 0.0005;
+    private static double kD_SHOOT = 0.0000;
+    private static double kF_SHOOT = 0.000535;
 
-    private static final double VEL_FILTER_ALPHA = 0.25; // lower = smoother, more lag
-    private static final double MAX_DT           = 0.05; // cap loop time to prevent derivative spike
-    private static final double MAX_SHOOTER_I    = 200.0;
+//    private static final double VEL_FILTER_ALPHA = 0.25;
+//    private static final double MAX_DT           = 0.05;
+//    private static final double MAX_SHOOTER_I    = 200.0;
 
     private double shooterTargetVel = 0;
     private double shooterI         = 0;
-    private double filteredVel      = 0;
-    private double shooterPrevVel   = 0;
+    private double shooterPrevErr   = 0;
 
     private static final double TICKS_PER_REV = 8192.0;
     private static final double ENCODER_GEAR_TEETH = 30.0;
@@ -103,8 +102,7 @@ public class Shooter {
     public void stopShooter() {
         shooterTargetVel = 0;
         shooterI = 0;
-        filteredVel = 0;
-        shooterPrevVel = 0;
+        shooterPrevErr = 0;
     }
 
     public double getShooterVelocity() {
@@ -112,19 +110,12 @@ public class Shooter {
     }
 
     private void updateShooter(double dt) {
-        dt = Math.min(dt, MAX_DT);
-
-        // low-pass filter to smooth noisy velocity readings
-        filteredVel = VEL_FILTER_ALPHA * getShooterVelocity() + (1 - VEL_FILTER_ALPHA) * filteredVel;
-
-        double error = shooterTargetVel - filteredVel;
+        double currentVel = getShooterVelocity();
+        double error = shooterTargetVel - currentVel;
 
         shooterI += error * dt;
-        shooterI = Range.clip(shooterI, -MAX_SHOOTER_I, MAX_SHOOTER_I);
-
-        // derivative on measurement (not error) — avoids kick when target changes between shots
-        double derivative = -(filteredVel - shooterPrevVel) / dt;
-        shooterPrevVel = filteredVel;
+        double derivative = (error - shooterPrevErr) / dt;
+        shooterPrevErr = error;
 
         double output =
                 kP_SHOOT * error +
@@ -223,11 +214,12 @@ public class Shooter {
 
     public double shotTimeFromDistance(double distance) {
 
-        double shotTime =
-                -6.93514e-7 * Math.pow(distance, 3)
-                        + 0.000149355 * Math.pow(distance, 2)
-                        - 0.00358185 * distance
-                        + 0.365367;
+        double shotTime;
+        if (distance <= 80) {
+            shotTime = 0.000012701 * Math.pow(distance, 2) + 0.00317874 * distance + 0.246331;
+        } else {
+            shotTime = 0.00926599 * distance - 0.202969;
+        }
 
         shotTime = Range.clip(shotTime, 0.38, 1.1);
 
@@ -282,11 +274,12 @@ public class Shooter {
 
     public double[] getShooterSettingsFromDistance(double distance) {
 
-        double flywheel =
-                0.00127613 * Math.pow(distance, 3)
-                        - 0.215972 * Math.pow(distance, 2)
-                        + 14.12372 * distance
-                        + 666.41444;
+        double flywheel;
+        if (distance <= 80) {
+            flywheel = 0.0429194 * Math.pow(distance, 2) - 0.541057 * distance + 786.19142;
+        } else {
+            flywheel = 7.46734 * distance + 534.99834;
+        }
 
         flywheel = Range.clip(flywheel, 800, 1700);
 

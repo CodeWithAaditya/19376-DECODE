@@ -40,16 +40,16 @@ public class Red18Ball extends OpMode {
 
             preload = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(113.000, 135.000),
+                                    new Pose(112.000, 135.000),
                                     new Pose(91.000, 93.000),
-                                    new Pose(88.000, 80.000)
+                                    new Pose(90.000, 88.000)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-40))
                     .build();
 
             spike1 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(88.000, 80.000),
+                                    new Pose(90.000, 88.000),
                                     new Pose(86.000, 58.000),
                                     new Pose(106.000, 60.000),
                                     new Pose(131.000, 59.000)
@@ -61,68 +61,69 @@ public class Red18Ball extends OpMode {
                             new BezierCurve(
                                     new Pose(131.000, 59.000),
                                     new Pose(95.000, 57.000),
-                                    new Pose(88.000, 80.000)
+                                    new Pose(88.000, 91.000)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(30))
                     .build();
 
             gate1 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(88.000, 80.000),
+                                    new Pose(88.000, 91.000),
                                     new Pose(98.000, 65.000),
-                                    new Pose(131.000, 60.000)
+                                    new Pose(130.367, 60.000)
                             )
                     ).setConstantHeadingInterpolation(Math.toRadians(30))
                     .build();
 
             shootGate1 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(131.000, 60.000),
+                                    new Pose(130.367, 60.000),
                                     new Pose(98.000, 65.000),
-                                    new Pose(88.000, 80.000)
+                                    new Pose(88.000, 91.000)
                             )
                     ).setConstantHeadingInterpolation(Math.toRadians(30))
                     .build();
 
             gate2 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(88.000, 80.000),
+                                    new Pose(88.000, 91.000),
                                     new Pose(98.000, 65.000),
-                                    new Pose(131.000, 60.000)
+                                    new Pose(130.367, 60.000)
                             )
                     ).setConstantHeadingInterpolation(Math.toRadians(30))
                     .build();
 
             shootGate2 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(131.000, 60.000),
+                                    new Pose(130.367, 60.000),
                                     new Pose(98.000, 65.000),
-                                    new Pose(88.000, 80.000)
+                                    new Pose(88.000, 91.000)
                             )
                     ).setConstantHeadingInterpolation(Math.toRadians(30))
                     .build();
 
             gate3 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(88.000, 80.000),
+                                    new Pose(88.000, 91.000),
                                     new Pose(98.000, 65.000),
-                                    new Pose(131.000, 60.000)
+                                    new Pose(130.367, 60.000)
                             )
                     ).setConstantHeadingInterpolation(Math.toRadians(30))
                     .build();
 
             shootGate3 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(131.000, 60.000),
+                                    new Pose(130.367, 60.000),
                                     new Pose(91.000, 70.000),
-                                    new Pose(87.000, 84.000)
+                                    new Pose(88.000, 91.000)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(30), Math.toRadians(0))
                     .build();
 
             spike2 = follower.pathBuilder().addPath(
-                            new BezierLine(
-                                    new Pose(87.000, 84.000),
+                            new BezierCurve(
+                                    new Pose(88.000, 91.000),
+                                    new Pose(102.000, 83.000),
                                     new Pose(123.000, 83.000)
                             )
                     ).setTangentHeadingInterpolation()
@@ -138,6 +139,7 @@ public class Red18Ball extends OpMode {
                     ).setTangentHeadingInterpolation()
                     .setReversed()
                     .build();
+
         }
     }
 
@@ -148,8 +150,9 @@ public class Red18Ball extends OpMode {
     public Intake intake;
     public Shooter shooter;
 
-    public static final double GATE_DELAY = 1.8;
+    public static final double GATE_DELAY = 2.2;
     public static final double SHOOT_DELAY = 0.6;
+    public static final double SETTLE_DELAY = 0.5;
 
     public Pose goalPose = new Pose(144, 144, 0);
 
@@ -161,7 +164,7 @@ public class Red18Ball extends OpMode {
         actionTimer = new ElapsedTime();
 
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(113, 135, Math.toRadians(-90)));
+        follower.setStartingPose(new Pose(112, 135, Math.toRadians(-90)));
 
         paths = new Paths(follower);
 
@@ -182,10 +185,9 @@ public class Red18Ball extends OpMode {
         shooter.update();
         autonomousPathUpdate();
 
-        double[] shooterSettings = shooter.SOTMTurretAngle(follower.getPose(), goalPose, follower.getVelocity());
-
-        shooter.setTurretAngle(shooterSettings[0]);
-        shooter.setShooterVelocity(shooterSettings[1]);
+        double distance = shooter.distanceToGoal(follower.getPose(), goalPose);
+        shooter.setTurretAngle(shooter.autoAimTurretAngle(follower.getPose(), goalPose));
+        shooter.setShooterVelocity(shooter.getShooterSettingsFromDistance(distance)[0]);
 
         panelsTelemetry.debug("Path State", pathState);
         panelsTelemetry.debug("X", follower.getPose().getX());
@@ -228,6 +230,12 @@ public class Red18Ball extends OpMode {
                 break;
             case 3:
                 if(pathCheck()){
+                    actionDelay = SETTLE_DELAY;
+                    setPathState(-3);
+                }
+                break;
+            case -3:
+                if(delayCheck()){
                     shoot(4, SHOOT_DELAY);
                 }
                 break;

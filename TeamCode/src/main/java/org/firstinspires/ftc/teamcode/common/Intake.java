@@ -44,8 +44,8 @@ public class Intake {
     }
 
     public enum GrabdexerState {
-        IN(0.987),
-        TRANSFER(0.94),
+        IN(0.957),
+        TRANSFER(0.90),
         OUT(0.2),
         MID(0.6);
 

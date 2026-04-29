@@ -32,10 +32,10 @@ public class ShooterTunerV2 extends LinearOpMode {
     public static double turretTargetAngle = 0.0;
 
     // Shooter PID
-    public static double shooter_kP = 0.008;
+    public static double shooter_kP = 0.004;
     public static double shooter_kI = 0.0;
-    public static double shooter_kD = 0.0004;
-    public static double shooter_kF = 0.0005;
+    public static double shooter_kD = 0.0000;
+    public static double shooter_kF = 0.000535;
 
     // Turret PID
     public static double turret_kP = 0.010;
