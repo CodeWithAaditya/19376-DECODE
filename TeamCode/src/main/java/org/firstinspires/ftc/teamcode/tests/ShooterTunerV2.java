@@ -32,10 +32,10 @@ public class ShooterTunerV2 extends LinearOpMode {
     public static double turretTargetAngle = 0.0;
 
     // Shooter PID
-    public static double shooter_kP = 0.004;
+    public static double shooter_kP = 0.008;
     public static double shooter_kI = 0.0;
     public static double shooter_kD = 0.0000;
-    public static double shooter_kF = 0.000535;
+    public static double shooter_kF = 0.0005;
 
     // Turret PID
     public static double turret_kP = 0.010;
@@ -117,6 +117,8 @@ public class ShooterTunerV2 extends LinearOpMode {
                     );
 
             double actualVelocity = shooter.getShooterVelocity();
+            double filteredVelocity = shooter.getFilteredShooterVelocity();
+            double velocityError = shooterTargetVelocity - filteredVelocity;
             double actualTurret = shooter.getTurretAngle();
 
             // ===============================
@@ -125,8 +127,10 @@ public class ShooterTunerV2 extends LinearOpMode {
 
             telemetryM.addData("DistanceToGoal_in", distance);
 
-            telemetryM.addData("ShooterTarget", shooterTargetVelocity);
-            telemetryM.addData("ShooterActual", actualVelocity);
+            telemetryM.addData("ShooterTarget",   shooterTargetVelocity);
+            telemetryM.addData("ShooterActual",   actualVelocity);
+            telemetryM.addData("ShooterFiltered", filteredVelocity);
+            telemetryM.addData("ShooterError",    velocityError);
 
             telemetryM.addData("TurretTarget_deg", turretTargetAngle);
             telemetryM.addData("TurretActual_deg", actualTurret);

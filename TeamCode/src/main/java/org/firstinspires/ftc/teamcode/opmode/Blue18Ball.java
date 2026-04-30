@@ -70,14 +70,14 @@ public class Blue18Ball extends OpMode {
                             new BezierCurve(
                                     new Pose(56.000, 91.000),
                                     new Pose(46.000, 65.000),
-                                    new Pose(13.633, 60.000)
+                                    new Pose(13.633, 62.500)
                             )
                     ).setConstantHeadingInterpolation(Math.toRadians(150))
                     .build();
 
             shootGate1 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(13.633, 60.000),
+                                    new Pose(13.633, 62.500),
                                     new Pose(46.000, 65.000),
                                     new Pose(56.000, 91.000)
                             )
@@ -88,14 +88,14 @@ public class Blue18Ball extends OpMode {
                             new BezierCurve(
                                     new Pose(56.000, 91.000),
                                     new Pose(46.000, 65.000),
-                                    new Pose(13.633, 60.000)
+                                    new Pose(13.633, 62.500)
                             )
                     ).setConstantHeadingInterpolation(Math.toRadians(150))
                     .build();
 
             shootGate2 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(13.633, 60.000),
+                                    new Pose(13.633, 62.500),
                                     new Pose(46.000, 65.000),
                                     new Pose(56.000, 91.000)
                             )
@@ -106,14 +106,14 @@ public class Blue18Ball extends OpMode {
                             new BezierCurve(
                                     new Pose(56.000, 91.000),
                                     new Pose(46.000, 65.000),
-                                    new Pose(13.633, 60.000)
+                                    new Pose(13.633, 65.200)
                             )
                     ).setConstantHeadingInterpolation(Math.toRadians(150))
                     .build();
 
             shootGate3 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(13.633, 60.000),
+                                    new Pose(13.633, 65.200),
                                     new Pose(53.000, 70.000),
                                     new Pose(56.000, 91.000)
                             )
@@ -163,7 +163,12 @@ public class Blue18Ball extends OpMode {
         actionTimer = new ElapsedTime();
 
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(32, 135, Math.toRadians(-90)));
+        try {
+            follower.getPoseTracker().resetIMU();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
 
         paths = new Paths(follower);
 
@@ -176,6 +181,11 @@ public class Blue18Ball extends OpMode {
 
         panelsTelemetry.debug("Status", "Initialized");
         panelsTelemetry.update(telemetry);
+    }
+
+    @Override
+    public void start(){
+        follower.setStartingPose(new Pose(31.47, 136.13, Math.toRadians(-90)));
     }
 
     @Override

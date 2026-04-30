@@ -40,8 +40,8 @@ public abstract class BaseTeleOp extends LinearOpMode {
         alliance = getAlliance();
 
         goalPose = alliance
-                ? new Pose(0,   144, 0)
-                : new Pose(144, 144, 0);
+                ? new Pose(2,   142, 0)
+                : new Pose(142, 142, 0);
 
         follower.startTeleOpDrive();
         waitForStart();
@@ -93,19 +93,19 @@ public abstract class BaseTeleOp extends LinearOpMode {
             }
             if (gamepad1.bWasPressed()) {
                 if (alliance) {
-                    follower.setPose(new Pose(27,  132, Math.toRadians(-40)));
+                    follower.setPose(new Pose(27,  134, Math.toRadians(-40)));
                 } else {
-                    follower.setPose(new Pose(117, 132, Math.toRadians(-140)));
+                    follower.setPose(new Pose(117, 134, Math.toRadians(-140)));
                 }
             }
             if (gamepad1.backWasPressed())  { shooter.trimTurretOffset(-2); }
             if (gamepad1.startWasPressed()) { shooter.trimTurretOffset(2);  }
 
             if(gamepad1.yWasPressed()){
-                if(alliance){
-                    follower.setPose(new Pose(112,8, Math.toRadians(90))); //blue
-                } else {
-                    follower.setPose(new Pose(30,8, Math.toRadians(90))); //red
+                try {
+                    follower.getPoseTracker().resetIMU();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
             }
 
