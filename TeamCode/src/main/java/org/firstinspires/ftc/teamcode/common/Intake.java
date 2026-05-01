@@ -33,6 +33,7 @@ public class Intake {
     public enum IntakeState {
         ON(1.0),
         AUTO_SHOOT(0.65),
+        FAR_ZONE_SHOOT(0.7),
         OFF(0.0),
         REVERSE(-1.0);
 

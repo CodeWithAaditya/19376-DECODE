@@ -213,7 +213,7 @@ public class Shooter {
 
     public double[] SOTMTurretAngle(Pose robotPose, Pose goalPose, Vector robotVelocity) {
         double shotTime = shotTimeFromDistance(distanceToGoal(robotPose, goalPose));
-        Pose correctedGoalPos = new Pose(goalPose.getX()-robotVelocity.getXComponent()*shotTime*1.2, goalPose.getY()-robotVelocity.getYComponent()*shotTime*1.2, goalPose.getHeading());
+        Pose correctedGoalPos = new Pose(goalPose.getX()-robotVelocity.getXComponent()*shotTime*1.3, goalPose.getY()-robotVelocity.getYComponent()*shotTime*1.3, goalPose.getHeading());
         double[] correctedShooterSettings =
                 getShooterSettingsFromDistance(distanceToGoal(robotPose, correctedGoalPos));
 

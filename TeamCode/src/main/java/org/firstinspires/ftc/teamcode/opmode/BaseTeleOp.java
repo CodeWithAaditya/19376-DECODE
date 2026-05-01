@@ -22,7 +22,8 @@ public abstract class BaseTeleOp extends LinearOpMode {
     public enum RobotState {
         IDLE,
         INTAKE,
-        SHOOT
+        SHOOT,
+        FAR_SHOOT
     }
 
     public RobotState robotState = RobotState.IDLE;
@@ -40,8 +41,8 @@ public abstract class BaseTeleOp extends LinearOpMode {
         alliance = getAlliance();
 
         goalPose = alliance
-                ? new Pose(2,   142, 0)
-                : new Pose(142, 142, 0);
+                ? new Pose(3,   141, 0)
+                : new Pose(141, 141, 0);
 
         follower.startTeleOpDrive();
         waitForStart();
@@ -77,6 +78,12 @@ public abstract class BaseTeleOp extends LinearOpMode {
                     intake.shootPosSwingArm();
                     break;
 
+                case FAR_SHOOT:
+                    intake.setGrabdexerState(Intake.GrabdexerState.IN);
+                    intake.setIntakeState(Intake.IntakeState.FAR_ZONE_SHOOT);
+                    intake.shootPosSwingArm();
+                    break;
+
             }
 
             if (gamepad1.a) {
@@ -87,6 +94,9 @@ public abstract class BaseTeleOp extends LinearOpMode {
             }
             if (gamepad1.left_bumper) {
                 robotState = RobotState.SHOOT;
+            }
+            if (gamepad1.right_bumper) {
+                robotState = RobotState.FAR_SHOOT;
             }
             if (gamepad1.left_trigger > 0.5) {
                 intake.setIntakeState(Intake.IntakeState.REVERSE);
@@ -114,11 +124,10 @@ public abstract class BaseTeleOp extends LinearOpMode {
             shooter.setTurretAngle(shooterSettings[0]);
             shooter.setShooterVelocity(shooterSettings[1]);
 
-            double speedMultiplier = gamepad1.right_bumper ? 0.3 : 1.0;
             follower.setTeleOpDrive(
-                    -gamepad1.left_stick_y  * speedMultiplier,
-                    -gamepad1.left_stick_x  * speedMultiplier,
-                    -gamepad1.right_stick_x * 0.6 * speedMultiplier,
+                    -gamepad1.left_stick_y,
+                    -gamepad1.left_stick_x,
+                    -gamepad1.right_stick_x * 0.6,
                     true
             );
 

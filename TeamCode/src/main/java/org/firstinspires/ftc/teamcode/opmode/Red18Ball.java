@@ -70,14 +70,14 @@ public class Red18Ball extends OpMode {
                             new BezierCurve(
                                     new Pose(88.000, 91.000),
                                     new Pose(98.000, 65.000),
-                                    new Pose(130.367, 62.500)
+                                    new Pose(130.367, 61.500)
                             )
                     ).setConstantHeadingInterpolation(Math.toRadians(30))
                     .build();
 
             shootGate1 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(130.367, 62.500),
+                                    new Pose(130.367, 61.500),
                                     new Pose(98.000, 65.000),
                                     new Pose(88.000, 91.000)
                             )
@@ -88,14 +88,14 @@ public class Red18Ball extends OpMode {
                             new BezierCurve(
                                     new Pose(88.000, 91.000),
                                     new Pose(98.000, 65.000),
-                                    new Pose(130.367, 62.500)
+                                    new Pose(130.367, 61.800)
                             )
                     ).setConstantHeadingInterpolation(Math.toRadians(30))
                     .build();
 
             shootGate2 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(130.367, 62.500),
+                                    new Pose(130.367, 61.800),
                                     new Pose(98.000, 65.000),
                                     new Pose(88.000, 91.000)
                             )
@@ -106,14 +106,14 @@ public class Red18Ball extends OpMode {
                             new BezierCurve(
                                     new Pose(88.000, 91.000),
                                     new Pose(98.000, 65.000),
-                                    new Pose(130.367, 62.500)
+                                    new Pose(130.367, 61.800)
                             )
                     ).setConstantHeadingInterpolation(Math.toRadians(30))
                     .build();
 
             shootGate3 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(130.367, 62.500),
+                                    new Pose(130.367, 61.800),
                                     new Pose(91.000, 70.000),
                                     new Pose(88.000, 91.000)
                             )
