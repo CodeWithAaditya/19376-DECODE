@@ -253,6 +253,13 @@ public class Red18BallPartner extends OpMode {
             case 5:
                 intake();
                 if (pathCheck()) {
+                    actionDelay = 1.0;
+                    setPathState(-5);
+                }
+                break;
+            case -5:
+                intake();
+                if (delayCheck()) {
                     setPathState(6);
                 }
                 break;
