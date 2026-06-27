@@ -184,7 +184,7 @@ public class Blue18BallPartner extends OpMode {
 
     @Override
     public void start() {
-        follower.setStartingPose(new Pose(31.47, 136.13, Math.toRadians(-90)));
+        follower.setStartingPose(new Pose(31.30, 136.24, Math.toRadians(-90)));
     }
 
     @Override

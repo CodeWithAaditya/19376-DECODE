@@ -103,9 +103,9 @@ public abstract class BaseTeleOp extends LinearOpMode {
             }
             if (gamepad1.bWasPressed()) {
                 if (alliance) {
-                    follower.setPose(new Pose(27,  134, Math.toRadians(-40)));
+                    follower.setPose(new Pose(27,  133, Math.toRadians(-40)));
                 } else {
-                    follower.setPose(new Pose(117, 134, Math.toRadians(-140)));
+                    follower.setPose(new Pose(117, 133, Math.toRadians(-140)));
                 }
             }
             if (gamepad1.backWasPressed())  { shooter.trimTurretOffset(-2); }
