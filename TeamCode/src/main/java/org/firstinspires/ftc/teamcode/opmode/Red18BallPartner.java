@@ -153,7 +153,7 @@ public class Red18BallPartner extends OpMode {
     public static final double SHOOT_DELAY = 0.6;
     public static final double SETTLE_DELAY = 0.5;
 
-    public Pose goalPose = new Pose(142, 142, 0);
+    public Pose goalPose = new Pose(144, 144, 0);
 
     @Override
     public void init() {

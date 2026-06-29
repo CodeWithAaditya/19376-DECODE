@@ -41,8 +41,8 @@ public abstract class BaseTeleOp extends LinearOpMode {
         alliance = getAlliance();
 
         goalPose = alliance
-                ? new Pose(3,   141, 0)
-                : new Pose(141, 141, 0);
+                ? new Pose(0,   144, 0)
+                : new Pose(144, 144, 0);
 
         follower.startTeleOpDrive();
         waitForStart();

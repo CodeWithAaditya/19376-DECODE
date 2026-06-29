@@ -45,8 +45,8 @@ public class Intake {
     }
 
     public enum GrabdexerState {
-        IN(0.957),
-        TRANSFER(0.90),
+        IN(0.92),
+        TRANSFER(0.855),
         OUT(0.2),
         MID(0.6);
 
@@ -126,7 +126,7 @@ public class Intake {
     }
 
     public boolean isBallInGrabdexer(){
-        double threshold = 64;
+        double threshold = 50;
         double distance1 = ballSensorL.getDistance(DistanceUnit.MM);
         double distance2 = ballSensorR.getDistance(DistanceUnit.MM);
         return distance1 < threshold || distance2 < threshold;
